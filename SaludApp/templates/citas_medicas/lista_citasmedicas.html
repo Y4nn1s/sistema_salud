@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>Citas Médicas</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap 4 CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Protección del template - Redirección si no está autenticado -->
+    {% if not user.is_authenticated %}
+    <script>
+        window.location.href = "{% url 'login' %}";
+    </script>
+    {% endif %}
+
+<!-- Nueva Barra de Navegación -->
+    {% include 'navbar.html' %}
+
+<!-- Muestra mensajes globales -->
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+
+<!-- Vista General de la Lista de Visitas en Diagnósticos -->
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap mb-2">
+            <h2 class="mb-4"><i class="fas fa-user-md"></i> Citas Médicas (Pendientes)</h2>
+        </div>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Empleado</th>
+                    <th>Motivo</th>
+                    <th>Diagnóstico y Tratamiento</th>
+                    <th>Fecha de Registro</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for visita in visitas_pendientes %}
+                <tr>
+                    <td>{{ visita.empleado.nombre }} {{ visita.empleado.apellido }}</td>
+
+                    <td>{{ visita.get_motivo_display }}</td>
+
+                    <td class="d-flex justify-content-center">
+                        {% if visita.diagnostico %}
+                            <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#modalVerDiagnostico{{ visita.id }}">
+                                Ver Detalles
+                            </button>
+                            <!-- <a href="{% url 'editar_diagnostico' visita.diagnostico.id %}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i>
+                            </a> -->
+                        {% else %}
+                            <span class="text-muted">Sin diagnóstico</span>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ visita.fecha|date:"d/m/Y H:i" }}</td>
+
+                    <td style="display: flex; justify-content: center; gap: 10px;">
+                        <!-- Botón para abrir modal de añadir diagnóstico -->
+                        <button type="button" 
+                        
+                                class="btn btn-warning btn-sm" 
+                                data-toggle="modal" 
+                                data-target="#modalDiagnostico{{ visita.id }}">
+                            Añadir Diagnóstico
+                        </button>
+
+                        <!-- Botón para marcar como completada la cita -->
+                        {% if user.is_medico or user.is_admin %}
+                            <a  href="{% url 'marcar_completada' visita.id %}"
+                                class="btn btn-sm btn-success"
+                                onclick="return confirm('¿Marcar esta cita como completada?');">
+                                <i class="fas fa-check"></i> Completar
+                            </a>
+                        {% else %}
+                            <span class="text-muted">Sin permisos</span>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <!-- Modal Para Crear Diagnóstico -->
+                <div class="modal fade" id="modalDiagnostico{{ visita.id }}" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <form method="post" action="{% url 'registrar_diagnostico' visita.id %}">
+                            {% csrf_token %}
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Diagnóstico para {{ visita.empleado.nombre }} {{ visita.empleado.apellido }}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <!-- Campo Diagnóstico -->
+                                    <div class="form-group">
+                                        {{ form_diagnostico.diagnostico.label_tag }}
+                                        {{ form_diagnostico.diagnostico }}
+                                        {% if form_diagnostico.diagnostico.errors %}
+                                            <div class="invalid-feedback d-block text-danger">
+                                                {{ form_diagnostico.diagnostico.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Campo Tratamiento -->
+                                    <div class="form-group">
+                                        {{ form_diagnostico.tratamiento.label_tag }}
+                                        {{ form_diagnostico.tratamiento }}
+                                        {% if form_diagnostico.tratamiento.errors %}
+                                            <div class="invalid-feedback d-block text-danger">
+                                                {{ form_diagnostico.tratamiento.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>  
+                                </div>  
+
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-success">Guardar</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
+                <!-- Modal Para Ver el Diagnóstico y Tratamiento -->
+                <div class="modal fade" id="modalVerDiagnostico{{ visita.id }}" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title">Detalles del Diagnóstico</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+
+                            <div class="modal-body">
+                                <p><strong>Diagnóstico:</strong> 
+                                    {{ visita.diagnostico.diagnostico }}
+                                </p>
+                                <p><strong>Tratamiento:</strong> 
+                                    {{ visita.diagnostico.tratamiento }}
+                                </p>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4">
+                        <i class="fas fa-calendar-times text-muted" style="font-size: 2rem;"></i>
+                        <h5 class="mt-2 text-muted">No hay citas pendientes en este momento.</h5>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+<!-- Bootstrap 4 JS y dependencias -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+{% include 'footer.html' %}
+
+</body>
+
+</html>

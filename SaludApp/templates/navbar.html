@@ -1,0 +1,96 @@
+<!-- Nueva Barra de Navegación -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="{% url 'redireccion_por_rol' %}">Sistema de Salud</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+            <!-- Menú para Recepción -->
+            {% if user.is_authenticated and user.is_recepcion %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'lista_empleados' %}">Empleados del Sistema</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'lista_visitas' %}">Registro de Visitas</a>
+                </li>
+            {% endif %}
+
+            <!-- Menú para Médicos -->
+            {% if user.is_authenticated and user.is_medico %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'lista_citasmedicas' %}">Citas Médicas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'lista_visitas' %}">Historial de Visitas</a>
+                </li>
+            {% endif %}
+
+            <!-- Menú para Administradores -->
+            {% if user.is_authenticated and user.is_admin %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Administración
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{% url 'lista_usuarios' %}">Gestión de Usuarios</a>
+                        <a class="dropdown-item" href="{% url 'lista_empleados' %}">Gestión de Empleados</a>
+                        <a class="dropdown-item" href="{% url 'lista_visitas' %}">Gestión de Visitas</a>
+                        <a class="dropdown-item" href="{% url 'lista_citasmedicas' %}">Gestión de Citas Médicas</a>
+                        <a class="dropdown-item" href="/admin/">Panel de Control</a>
+                    </div>
+                </li>
+            {% endif %}
+        </ul>
+
+        <ul class="navbar-nav">
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <span class="nav-link text-primary">
+                        <i class="fas fa-user-shield"></i>
+                        {{ user.get_full_name|default:user.username }}
+                        {% if user.is_admin %}(Administrador){% endif %}
+                        {% if user.is_medico %}(Médico){% endif %}
+                        {% if user.is_recepcion %}(Recepción){% endif %}
+                    </span>
+                </li>
+                <li class="nav-item">
+                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link nav-link" style="border:none; background:none; cursor:pointer;">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </button>
+                    </form>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">
+                        <i class="fas fa-sign-in-alt"></i> Ingresar
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
+<!-- Indicador de Rol -->
+{% if user.is_authenticated %}
+<div class="container-fluid role-banner">
+    <div class="row">
+        <div class="col-12 p-2 text-center 
+            {% if user.is_admin %}bg-danger text-white{% endif %}
+            {% if user.is_medico %}bg-primary text-white{% endif %}
+            {% if user.is_recepcion %}bg-warning{% endif %}">
+            <small>
+                Rol Actual: 
+                <strong>
+                    {% if user.is_admin %}Administrador del Sistema{% endif %}
+                    {% if user.is_medico %}Médico Responsable{% endif %}
+                    {% if user.is_recepcion %}Personal de Recepción{% endif %}
+                </strong>
+            </small>
+        </div>
+    </div>
+</div>
+{% endif %}

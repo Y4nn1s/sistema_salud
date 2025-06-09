@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>Gestión de Usuarios</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Nueva Barra de Navegación -->
+    {% include 'navbar.html' %}
+
+    <div class="container mt-4">
+        <h2 class="mb-4"><i class="fas fa-users-cog"></i> Gestión de Usuarios</h2>
+        
+        <!-- Botón Nuevo Usuario (Solo Admin) -->
+        {% if user.is_admin %}
+        <div class="d-flex justify-content-end mb-2">
+            <a href="{% url 'admin:SaludApp_customuser_add' %}" class="btn btn-success">
+                <i class="fas fa-user-plus"></i> Nuevo Usuario
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Tabla de Usuarios -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Usuario</th>
+                        <th scope="col">Rol</th>
+                        <th scope="col">Último acceso</th>
+                        <th scope="col">Registro</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col" class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ usuario.username }}</td>
+                        <td>{{ usuario.get_rol_display }}</td>
+                        <td>
+                            {% if usuario.last_login %}
+                                {{ usuario.last_login|date:"d/m/Y H:i" }}
+                            {% else %}
+                                Nunca
+                            {% endif %}
+                        </td>
+                        <td>{{ usuario.date_joined|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if usuario.is_active %}
+                                <span class="badge badge-success">Activo</span>
+                            {% else %}
+                                <span class="badge badge-danger">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <!-- Editar -->
+                            <a href="{% url 'admin:SaludApp_customuser_change' usuario.id %}" 
+                                class="btn btn-sm btn-warning" 
+                                title="Editar"
+                                data-toggle="tooltip">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            
+                            <!-- Eliminar (Solo para admins y no superusuarios) -->
+                            {% if user.is_admin and not usuario.is_superuser %}
+                            <a href="{% url 'admin:SaludApp_customuser_delete' usuario.id %}" 
+                                class="btn btn-sm btn-danger"
+                                title="Eliminar"
+                                data-toggle="tooltip"
+                                onclick="return confirm('¿Está seguro de eliminar permanentemente a {{ usuario.username }}?')">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">
+                            No hay usuarios registrados
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        {% if is_paginated %}
+        <nav aria-label="Navegación de páginas">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+
+<!-- SCRIPTS -->
+    <!-- Bootstrap 4 JS y dependencias -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+</body>
+</html>

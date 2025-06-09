@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>Lista de Empleados</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap 4 CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Protección del template - Redirección si no está autenticado -->
+    {% if not user.is_authenticated %}
+    <script>
+        window.location.href = "{% url 'login' %}";
+    </script>
+    {% endif %}
+
+    <!-- Nueva Barra de Navegación -->
+    {% include 'navbar.html' %}
+
+    <!-- Mostrar Mensajes flash -->
+    {% if messages %}
+    <div class="container mt-2">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Vista General de la Lista de Empleados -->
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap mb-2">
+            <h2 class="mb-4"><i class="fas fa-user-friends"></i> Lista de Empleados</h2>
+            
+            <!-- Botón para abrir el modal de Registro -->
+            {% if user.is_admin or user.is_recepcion %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#registrarEmpleadoModal">
+                <i class="fas fa-plus"></i> Nuevo Empleado
+            </button>
+        </div>
+
+        <div class="table-responsive" style="max-width: 90%; margin: auto;">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Cédula</th>
+                        <th>P00</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Fecha de Registro</th>                    
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for empleado in empleados %}
+                    <tr>
+                        <td>{{ empleado.cedula }}</td>
+                        <td>{{ empleado.p00 }}</td>
+                        <td>{{ empleado.nombre }}</td>
+                        <td>{{ empleado.apellido }}</td>
+                        <td>{{ empleado.fecha_registro }}</td>
+                        <td class="d-flex justify-content-center">
+                            <!-- Botón para abrir el modal de edición -->                    
+                            <button type="button" 
+                                    class="btn btn-sm btn-warning mr-2" 
+                                    data-toggle="modal" 
+                                    data-target="#editarEmpleadoModal{{ empleado.id }}">
+                                    <i class="fas fa-edit"></i> Editar
+                            </button>
+
+                            <!-- Modal de Edición -->
+                            <div class="modal fade" id="editarEmpleadoModal{{ empleado.id }}" tabindex="-1" role="dialog" aria-labelledby="editarEmpleadoModalLabel{{ empleado.id }}" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editarEmpleadoModalLabel{{ empleado.id }}">Editar Empleado: {{ empleado.nombre }} {{ empleado.apellido }}</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <form method="post" action="{% url 'editar_empleado' empleado.id %}">
+                                                {% csrf_token %}
+                                                <!-- Campos -->
+                                                <div class="form-group">
+                                                    <label for="cedula{{ empleado.id }}">Cédula</label>
+                                                    <input  type="text" class="form-control" id="cedula{{ empleado.id }}" 
+                                                            name="cedula" value="{{ empleado.cedula }}"
+                                                            pattern="[0-9]+" title="Solo números permitidos">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="p00{{ empleado.id }}">P00</label>
+                                                    <input  type="text" class="form-control" id="p00{{ empleado.id }}" 
+                                                            name="p00" value="{{ empleado.p00 }}"
+                                                            pattern="[0-9]+" title="Solo números permitidos">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="nombre{{ empleado.id }}">Nombre</label>
+                                                    <input  type="text" class="form-control" id="nombre{{ empleado.id }}" 
+                                                            name="nombre" value="{{ empleado.nombre }}"
+                                                            required>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="apellido{{ empleado.id }}">Apellido</label>
+                                                    <input  type="text" class="form-control" id="apellido{{ empleado.id }}" 
+                                                            name="apellido" value="{{ empleado.apellido }}"
+                                                            required>
+                                                </div>
+                                                
+                                                <!-- Para mostrar errores -->
+                                                <div id="formErrors{{ empleado.id }}" class="alert alert-danger d-none"></div>
+                                                
+                                                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Botón Eliminar -->
+                            <form action="{% url 'eliminar_empleado' empleado.id %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" 
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirm('¿Estás seguro de que deseas eliminar este empleado?');">
+                                        <i class="fas fa-trash-alt"></i> Eliminar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Modal de Registro -->
+    <div class="modal fade" id="registrarEmpleadoModal" tabindex="-1" role="dialog" aria-labelledby="registrarEmpleadoModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registrarEmpleadoModalLabel">Registrar Empleado</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">                                        
+                    <!-- Formulario de registro -->
+                    <form method="post" action="{% url 'registrar_empleado' %}" id="registrarEmpleadoForm">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="id_cedula">Cédula</label>
+                            <input type="text" class="form-control" id="id_cedula"
+                                    name="cedula" required
+                                    pattern="[0-9]+" title="Sólo números permitidos">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_p00">P00</label>
+                            <input type="text" class="form-control" id="id_p00"
+                                    name="p00" required
+                                    pattern="[0-9]+" title="Sólo números permitidos">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_nombre">Nombre</label>
+                            <input type="text" class="form-control" id="id_nombre"
+                                    name="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_apellido">Apellido</label>
+                            <input type="text" class="form-control" id="id_apellido"
+                                    name="apellido" required>
+                        </div>
+                        <div id="formErrors" class="alert alert-danger d-none"></div>
+                        <div class="d-flex justify-content-center">
+                            <button type="submit" class="btn btn-primary">Registrar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<!-- SCRIPTS -->
+
+    <!-- Bootstrap 4, JS y dependencias -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+{% include 'footer.html' %}
+
+</html>

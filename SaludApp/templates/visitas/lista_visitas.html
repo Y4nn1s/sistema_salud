@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>Lista de Visitas</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap 4 CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Protección del template - Redirección si no está autenticado -->
+    {% if not user.is_authenticated %}
+    <script>
+        window.location.href = "{% url 'login' %}";
+    </script>
+    {% endif %}
+
+    <!-- Nueva Barra de Navegación -->
+    {% include 'navbar.html' %}
+
+<!-- Vista General de la Lista de Visitas -->
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap mb-2">
+            <h2 class="mb-4"><i class="fas fa-notes-medical"></i> Lista de Visitas</h2>
+            
+            <!-- Botón para abrir el modal -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#registrarVisitaModal">
+                <i class="fas fa-plus"></i> Registrar Nueva Visita
+            </button>
+        </div>
+
+        <div class="table-responsive" style="max-width: 95%; margin: auto;">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">Empleado</th>
+                        <th style="width: 10%;">Motivo</th>
+                        <th style="width: 10%;">Estado</th>
+                        <th style="width: 10%;">Fecha de Registro</th>
+                        <th style="width: 5%;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visita in visitas %}
+                    <tr>
+                        <td>{{ visita.empleado.nombre }} {{ visita.empleado.apellido }}</td>
+                        <td>{{ visita.get_motivo_display }}</td>
+                        <td>{{ visita.get_estado_display }}</td>                  
+                        <td>{{ visita.fecha|date:"d/m/Y H:i" }}</td>
+                        <td class="d-flex justify-content-center">
+                            <!-- Botón para abrir el modal de edición -->
+                            {% if user.is_admin or user.is_recepcion %}
+                            <button type="button" 
+                                    class="btn btn-sm btn-warning mr-2" 
+                                    data-toggle="modal" 
+                                    data-target="#editarVisitaModal{{ visita.id }}">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+
+                            <!-- Modal de Edición Para Cada Visita -->
+                            <div class="modal fade" id="editarVisitaModal{{ visita.id }}" tabindex="-1" role="dialog" aria-labelledby="editarVisitaModalLabel{{ visita.id }}" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editarVisitaModalLabel{{ visita.id }}">Editar Visita: {{ visita.empleado.nombre }} {{ visita.empleado.apellido }}</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                
+                                        <div class="modal-body">
+                                            <form method="post" action="{% url 'editar_visita' visita.id %}">
+                                                {% csrf_token %}
+
+                                                <div class="form-group">
+                                                    <label for="empleado{{ visita.id }}">Empleado</label>
+                                                    <select class="form-control" id="empleado{{ visita.id }}" name="empleado" required>
+
+                                                        {% for emp in empleados %}
+                                                            <option value="{{ emp.id }}" 
+                                                                {% if emp.id == visita.empleado.id %}selected{% endif %}>
+                                                                {{ emp.nombre }} {{ emp.apellido }} ({{ emp.cedula }})
+                                                            </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="motivo{{ visita.id }}">Motivo</label>
+                                                    <select class="form-control" id="motivo{{ visita.id }}" name="motivo" required>
+                                                        <option value="consulta" {% if visita.motivo == 'consulta' %}selected{% endif %}>Consulta</option>
+                                                        <option value="control" {% if visita.motivo == 'control' %}selected{% endif %}>Control</option>
+                                                        <option value="emergencia" {% if visita.motivo == 'emergencia' %}selected{% endif %}>Emergencia</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="estado{{ visita.id }}">Estado</label>
+                                                    <select class="form-control" id="estado{{ visita.id }}" name="estado" required>
+                                                        <option value="pendiente" {% if visita.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                                                        <option value="completada" {% if visita.estado == 'completada' %}selected{% endif %}>Completada</option>
+                                                    </select>
+                                                </div>
+                        
+                                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                            </form>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Botón Eliminar -->
+                            {% if user.is_admin %}
+                            <a href="{% url 'eliminar_visita' visita.id %}" 
+                                class="btn btn-sm btn-danger" 
+                                onclick="return confirm('¿Estás seguro de querer eliminar esta visita?');">
+                                <i class="fas fa-trash-alt"></i> Eliminar
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <!-- Modal de Registro -->
+    <div class="modal fade" id="registrarVisitaModal" tabindex="-1" role="dialog" aria-labelledby="registrarVisitaModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registrarVisitaModalLabel">Registrar Visita</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">                                        
+                    <!-- Formulario de registro -->
+                    <form method="post" action="{% url 'registrar_visita' %}">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-primary">Registrar</button>
+                    </form>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 4 JS y dependencias -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+{% include 'footer.html' %}
+
+</html>

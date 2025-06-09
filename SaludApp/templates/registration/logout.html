@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cierre de Sesión - Sistema de Salud</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card p-4 text-center">
+                    <h2 class="mb-4">Sesión Finalizada</h2>
+                    <div class="alert alert-success">
+                        Has cerrado sesión exitosamente.
+                    </div>
+                    <a href="{% url 'login' %}" class="btn btn-primary">
+                        Volver a Iniciar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

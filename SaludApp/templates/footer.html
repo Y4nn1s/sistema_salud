@@ -1,0 +1,49 @@
+<footer class="footer mt-auto py-3 bg-dark text-white">
+    <div class="container">
+        <div class="row">
+            <!-- Columna 1: Información -->
+            <div class="col-md-4">
+                <h5>Sistema de Salud</h5>
+                <p>Gestión de visitas médicas</p>
+                <p>© {% now "Y" %} Cantv</p>
+            </div>
+            
+            <!-- Columna 2: Contacto -->
+            <div class="col-md-4">
+                <h5>Contacto</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-envelope"></i> salud@cantv.com.ve</li>
+                    <li><i class="fas fa-phone"></i> +58 212-555-1234</li>
+                </ul>
+            </div>
+            
+            <!-- Columna 3: Redes Sociales -->
+            <div class="col-md-4">
+                <h5>Síguenos</h5>
+                <a href="#" class="text-white mr-2"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="text-white mr-2"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-white mr-2"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+    html, body {
+        height: 100%;
+    }
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh; /* Usa el 100% del alto de la pantalla */
+    }
+    .content {
+        flex: 1; /* Hace que el contenido ocupe el espacio restante */
+    }
+    .footer {
+        background-color: #343a40;
+        color: white;
+        padding: 1rem 0;
+        margin-top: auto; /* Empuja el footer hacia abajo */
+    }
+</style>

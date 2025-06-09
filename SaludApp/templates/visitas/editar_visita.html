@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Visita</title>
+    <!-- Bootstrap 4 CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css " rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css " rel="stylesheet">
+</head>
+<body>
+
+<!-- Este div con clase "modal" permite reutilizar el estilo del modal desde la lista_visitas.html -->
+<div class="modal fade show" id="editarVisitaModal{{ visita.id }}" tabindex="-1" role="dialog" style="display: block;">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Visita: {{ visita.empleado.nombre }} {{ visita.empleado.apellido }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="cerrarModalBtn">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form method="post" action="{% url 'editar_visita' visita.id %}">
+                    {% csrf_token %}
+
+                    <!-- Campo Empleado -->
+                    <div class="form-group">
+                        <label for="id_empleado">Empleado</label>
+                        <select class="form-control" id="id_empleado" name="empleado" required>
+                            {% for emp in empleados %}
+                                <option value="{{ emp.id }}"
+                                        {% if emp.id == visita.empleado.id %}selected{% endif %}>
+                                    {{ emp.nombre }} {{ emp.apellido }} ({{ emp.cedula }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Campo Motivo -->
+                    <div class="form-group">
+                        <label for="id_motivo">Motivo</label>
+                        <select class="form-control" id="id_motivo" name="motivo" required>
+                            <option value="consulta" {% if visita.motivo == 'consulta' %}selected{% endif %}>Consulta</option>
+                            <option value="control" {% if visita.motivo == 'control' %}selected{% endif %}>Control</option>
+                            <option value="emergencia" {% if visita.motivo == 'emergencia' %}selected{% endif %}>Emergencia</option>
+                        </select>
+                    </div>
+
+                    <!-- Campo Estado -->
+                    <div class="form-group">
+                        <label for="id_estado">Estado</label>
+                        <select class="form-control" id="id_estado" name="estado" required>
+                            <option value="pendiente" {% if visita.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                            <option value="completada" {% if visita.estado == 'completada' %}selected{% endif %}>Completada</option>
+                        </select>
+                    </div>
+
+                    <!-- Campo Fecha -->
+                    <div class="form-group">
+                        <label for="id_fecha">Fecha y Hora de la Visita</label>
+                        <input  type="datetime-local" class="form-control" id="id_fecha" name="fecha"
+                                value="{{ visita.fecha|date:'Y-m-dTH:i' }}" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cerrarModalFooterBtn">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS y dependencias -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    document.getElementById('cerrarModalBtn').onclick = function () {
+        window.location.href = '{% url "lista_visitas" %}';
+    };
+
+    document.getElementById('cerrarModalFooterBtn').onclick = function () {
+        window.location.href = '{% url "lista_visitas" %}';
+    };
+</script>
+</body>
+</html>

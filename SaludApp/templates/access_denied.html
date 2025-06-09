@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Denegado - Sistema de Salud CANTV</title>
+
+    <!-- Bootstrap 4 CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css " rel="stylesheet">
+
+    <!-- Font Awesome para iconos -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css " rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border-top: 4px solid #dc3545; /* Rojo de error */
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .btn-cantv {
+            background-color: #0047ca; /* Azul corporativo de CANTV */
+            color: white;
+        }
+        .btn-cantv:hover {
+            background-color: #2c64ac;
+        }
+    </style>
+</head>
+<body class="d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card text-center p-4">
+                    <i class="fas fa-ban fa-4x text-danger mb-3"></i>
+                    <h2 class="mb-3">Acceso Denegado</h2>
+                    <p class="mb-4">
+                        No tienes permiso para acceder a esta página.<br>
+                        Contacta al administrador si necesitas acceso.
+                    </p>
+
+                    <div class="d-flex flex-column flex-md-row justify-content-center gap-2">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'redireccion_por_rol' %}" class="btn btn-cantv btn-lg">
+                                <i class="fas fa-home mr-1"></i> Volver al Inicio
+                            </a>
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-secondary btn-lg">
+                                    <i class="fas fa-sign-out-alt mr-1"></i> Cerrar Sesión
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-cantv btn-lg">
+                                <i class="fas fa-sign-in-alt mr-1"></i> Iniciar Sesión
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
