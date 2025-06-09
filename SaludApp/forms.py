@@ -63,7 +63,7 @@ class VisitaForm(forms.ModelForm):
         model = Visita
         fields = ['empleado', 'motivo', 'estado']
         widgets = {
-            'empleado': forms.Select(attrs={'class': 'form-control'}),
+            'empleado': forms.Select(attrs={'class': 'form-control select2'}),
             'motivo': forms.Select(attrs={'class': 'form-control'}),
             'estado': forms.Select(attrs={'class': 'form-control'})
         }
