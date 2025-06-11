@@ -8,7 +8,8 @@ db.sqlite3
 media
 
 # Backup files # 
-*.bak 
+*.bak
+dump-salud_db3-202506110951.sql
 
 # If you are using PyCharm # 
 # User-specific stuff

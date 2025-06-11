@@ -103,7 +103,7 @@ class ListaVisitasView(LoginRequiredMixin, ListView):
     model = Visita
     template_name = 'visitas/lista_visitas.html'
     context_object_name = 'visitas'
-    paginate_by = 15
+    paginate_by = 10
 
     # Permiso a la Vista para Médicos, Recepcionistas y Administradores
     def test_func(self):
