@@ -48,9 +48,9 @@ urlpatterns = [
     # Gestión de Usuarios (Admin)
     path('usuarios/', ListaUsuariosView.as_view(), name='lista_usuarios'),
 
-    # Redirección por Rol
-    path('redireccion/', RedireccionPorRolView.as_view(), name='redireccion_por_rol' )
-
+    # REDIRECCIONES
+    path('redireccion/', RedireccionPorRolView.as_view(), name='redireccion_por_rol' ),
+    path('', RedireccionPorRolView.as_view(), name='home' )
 ]
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
