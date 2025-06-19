@@ -58,6 +58,17 @@
             align-items: center;
             justify-content: center;
         }
+
+        .no-diagnostico {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .no-diagnostico i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #6c757d;
+        }
     </style>
 </head>
 
@@ -103,49 +114,63 @@
                         <td>{{ visita.fecha|date:"d/m/Y H:i" }}</td>
                         <td>
                             <div class="btn-action-group">
-                                <!-- Botón Ver Diagnóstico (Médico) -->
-                                {% if visita.diagnostico and user.is_medico %}
-                                <button type="button" 
-                                        class="btn btn-info btn-action" 
-                                        data-toggle="modal" 
-                                        data-target="#verDiagnosticoModal{{ visita.id }}"
-                                        title="Ver diagnóstico">
-                                        <i class="fas fa-eye"></i>
-                                    <span class="d-none d-md-inline">Ver Diagnóstico</span>
-                                </button>
+
+                                <!-- Botón Ver Diagnóstico (Médico) - SOLO SI EXISTE UN DIAGNÓSTICO -->
+                                {% if user.is_medico %}
+
+                                    {% if visita.diagnostico %}
+                                        <button type="button" 
+                                                class="btn btn-info btn-action" 
+                                                data-toggle="modal" 
+                                                data-target="#verDiagnosticoModal{{ visita.id }}"
+                                                title="Ver diagnóstico">
+                                                <i class="fas fa-eye"></i>
+                                            <span class="d-none d-md-inline">Ver Diagnóstico</span>
+                                        </button>
+
+                                    {% else %}
+                                        <span class="text-muted">Sin diagnóstico</span>
+                                    {% endif %}
                                 {% endif %}
                                 
                                 <!-- Botón Editar (Recepción) -->
-                                {% if visita.diagnostico and user.is_recepcion %}
-                                <button type="button" 
-                                        class="btn btn-warning btn-action" 
-                                        data-toggle="modal" 
-                                        data-target="#editarVisitaModal{{ visita.id }}"
-                                        title="Editar visita">
-                                    <i class="fas fa-edit"></i>
-                                    <span class="d-none d-md-inline">Editar Cita Médica</span>
-                                </button>
+                                {% if user.is_recepcion %}
+                                    <button type="button" 
+                                            class="btn btn-warning btn-action" 
+                                            data-toggle="modal" 
+                                            data-target="#editarVisitaModal{{ visita.id }}"
+                                            title="Editar visita">
+                                        <i class="fas fa-edit"></i>
+                                        <span class="d-none d-md-inline">Editar Cita Médica</span>
+                                    </button>
                                 {% endif %}
 
-                                <!-- Botón Ver Diagnóstico, Editar y Eliminar (Solo Admin) -->
-                                {% if visita.diagnostico and user.is_admin %}
-                                <button type="button" class="btn btn-sm btn-info rounded-circle" 
-                                        data-toggle="modal" data-target="#verDiagnosticoModal{{ visita.id }}"
-                                        title="Ver diagnóstico">
-                                        <i class="fas fa-eye"></i>
-                                </button>
+                                <!-- Botones para Admin -->
+                                {% if user.is_admin %}
 
-                                <button type="button" class="btn btn-sm btn-warning rounded-circle" 
-                                        data-toggle="modal" data-target="#editarVisitaModal{{ visita.id }}"
-                                        title="Editar visita">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                
-                                <a  href="{% url 'eliminar_visita' visita.id %}" class="btn btn-sm btn-danger rounded-circle" 
-                                    onclick="return confirm('¿Estás seguro de querer eliminar esta visita?');"
-                                    title="Eliminar visita">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
+                                    <!-- Ver Diagnóstico (Si Existe) -->
+                                    {% if visita.diagnostico %}
+                                        <button type="button" class="btn btn-sm btn-info rounded-circle" 
+                                                data-toggle="modal" data-target="#verDiagnosticoModal{{ visita.id }}"
+                                                title="Ver diagnóstico">
+                                                <i class="fas fa-eye"></i>
+                                        </button>
+                                    {% endif %}
+
+                                    <!-- Editar -->
+                                    <button type="button" class="btn btn-sm btn-warning rounded-circle" 
+                                            data-toggle="modal" data-target="#editarVisitaModal{{ visita.id }}"
+                                            title="Editar visita">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+
+                                    <!-- Eliminar -->
+                                    <a  href="{% url 'eliminar_visita' visita.id %}" class="btn btn-sm btn-danger rounded-circle" 
+                                        onclick="return confirm('¿Estás seguro de querer eliminar esta visita?');"
+                                        title="Eliminar visita">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+
                                 {% endif %}
                             </div>
                         </td>
@@ -165,49 +190,65 @@
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    <div class="card mb-3">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <h6 class="text-muted">Paciente</h6>
-                                                    <h5>{{ visita.empleado.nombre }} {{ visita.empleado.apellido }}</h5>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <h6 class="text-muted">Fecha de visita</h6>
-                                                    <h5>{{ visita.fecha|date:"d/m/Y H:i" }}</h5>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label class="font-weight-bold">Diagnóstico</label>
-                                        <div class="diagnostico-field">
-                                            {{ visita.diagnostico.diagnostico|linebreaks }}
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label class="font-weight-bold">Tratamiento</label>
-                                        <div class="diagnostico-field">
-                                            {{ visita.diagnostico.tratamiento|linebreaks }}
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="form-group mt-4">
-                                        <div class="text-center">
-                                            <label class="form-label d-block font-weight-bold">
-                                                <i class="far fa-calendar-alt mr-1"></i> Fecha del diagnóstico
-                                            </label>
-                                            <div class="mt-2">
-                                                <div class="d-inline-block bg-light p-2 rounded">
-                                                    <span class="font-weight-bold" style="font-size: 1.1rem;">
-                                                        {{ visita.diagnostico.fecha_diagnostico|date:'d/m/Y H:i' }}
-                                                    </span>
+                                    <!-- Si Hay Diagnóstico -->
+                                    {% if visita.diagnostico %}
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-muted">Paciente</h6>
+                                                        <h5>{{ visita.empleado.nombre }} {{ visita.empleado.apellido }}</h5>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-muted">Fecha de visita</h6>
+                                                        <h5>{{ visita.fecha|date:"d/m/Y H:i" }}</h5>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Diagnóstico</label>
+                                            <div class="diagnostico-field">
+                                                {{ visita.diagnostico.diagnostico|linebreaks }}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Tratamiento</label>
+                                            <div class="diagnostico-field">
+                                                {{ visita.diagnostico.tratamiento|linebreaks }}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group mt-4">
+                                            <div class="text-center">
+                                                <label class="form-label d-block font-weight-bold">
+                                                    <i class="far fa-calendar-alt mr-1"></i> Fecha del diagnóstico
+                                                </label>
+                                                <div class="mt-2">
+                                                    <div class="d-inline-block bg-light p-2 rounded">
+                                                        <span class="font-weight-bold" style="font-size: 1.1rem;">
+                                                            {{ visita.diagnostico.fecha_diagnostico|date:'d/m/Y H:i' }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    
+                                    {% else %}
+                                        <!-- Si NO hay diagnóstico -->
+                                        <div class="no-diagnostico">
+                                            <i class="fas fa-file-medical-slash"></i>
+                                            <h4>Diagnóstico no disponible</h4>
+                                            <p class="text-muted">
+                                                No se ha registrado ningún diagnóstico para esta visita médica.
+                                            </p>
+                                            <button class="btn btn-primary" data-dismiss="modal">
+                                                <i class="fas fa-arrow-left mr-1"></i> Volver al listado
+                                            </button>
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -272,9 +313,57 @@
                     {% endfor %}
                 </tbody>
             </table>
+            
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted">
+                    Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ page_obj.paginator.count }} registros
+                </div>
+                
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1" aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
         </div>
-    </div>
 
+    </div>
 
     <!-- Modal de Registro -->
     <div class="modal fade" id="registrarVisitaModal" tabindex="-1" role="dialog" aria-labelledby="registrarVisitaModalLabel" aria-hidden="true">
