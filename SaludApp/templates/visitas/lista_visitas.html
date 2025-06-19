@@ -18,20 +18,44 @@
             min-height: 100px;
             overflow-y: auto;
         }
-        
-/*         .btn-diagnostico {
-            min-width: 40px;
-            height: 30px;
-            padding: 0.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        } */
-        
+
         .btn-action-group {
             display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+        }
+        
+        .btn-action {
+            min-width: 40px;
+            height: 32px;
+            padding: 0.25rem 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+        
+        .btn-action i {
+            margin-right: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            .btn-action-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            .btn-action {
+                width: 100%;
+                justify-content: flex-start;
+                padding: 0.25rem 0.75rem;
+            }
+        }
+
+        .rounded-circle {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
             justify-content: center;
         }
     </style>
@@ -79,32 +103,45 @@
                         <td>{{ visita.fecha|date:"d/m/Y H:i" }}</td>
                         <td>
                             <div class="btn-action-group">
-                                <!-- Botón para ver diagnóstico (Médico y Admin) -->
-                                {% if visita.diagnostico and user.is_medico or user.is_admin %}
+                                <!-- Botón Ver Diagnóstico (Médico) -->
+                                {% if visita.diagnostico and user.is_medico %}
                                 <button type="button" 
-                                        class="btn btn-sm btn-info btn-diagnostico" 
+                                        class="btn btn-info btn-action" 
                                         data-toggle="modal" 
                                         data-target="#verDiagnosticoModal{{ visita.id }}"
                                         title="Ver diagnóstico">
-                                    <i class="fas fa-file-medical"></i> Ver Diagnóstico
+                                        <i class="fas fa-eye"></i>
+                                    <span class="d-none d-md-inline">Ver Diagnóstico</span>
                                 </button>
                                 {% endif %}
                                 
-                                <!-- Botón para abrir el modal de edición -->
-                                {% if user.is_admin or user.is_recepcion %}
+                                <!-- Botón Editar (Recepción) -->
+                                {% if visita.diagnostico and user.is_recepcion %}
                                 <button type="button" 
-                                        class="btn btn-sm btn-warning btn-diagnostico" 
+                                        class="btn btn-warning btn-action" 
                                         data-toggle="modal" 
                                         data-target="#editarVisitaModal{{ visita.id }}"
                                         title="Editar visita">
-                                    <i class="fas fa-edit"></i> Editar Visita
+                                    <i class="fas fa-edit"></i>
+                                    <span class="d-none d-md-inline">Editar Cita Médica</span>
                                 </button>
                                 {% endif %}
 
-                                <!-- Botón Eliminar -->
-                                {% if user.is_admin %}
-                                <a href="{% url 'eliminar_visita' visita.id %}" 
-                                    class="btn btn-sm btn-danger btn-diagnostico" 
+                                <!-- Botón Ver Diagnóstico, Editar y Eliminar (Solo Admin) -->
+                                {% if visita.diagnostico and user.is_admin %}
+                                <button type="button" class="btn btn-sm btn-info rounded-circle" 
+                                        data-toggle="modal" data-target="#verDiagnosticoModal{{ visita.id }}"
+                                        title="Ver diagnóstico">
+                                        <i class="fas fa-eye"></i>
+                                </button>
+
+                                <button type="button" class="btn btn-sm btn-warning rounded-circle" 
+                                        data-toggle="modal" data-target="#editarVisitaModal{{ visita.id }}"
+                                        title="Editar visita">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                
+                                <a  href="{% url 'eliminar_visita' visita.id %}" class="btn btn-sm btn-danger rounded-circle" 
                                     onclick="return confirm('¿Estás seguro de querer eliminar esta visita?');"
                                     title="Eliminar visita">
                                     <i class="fas fa-trash-alt"></i>
@@ -120,7 +157,7 @@
                             <div class="modal-content">
                                 <div class="modal-header bg-info text-white">
                                     <h5 class="modal-title">
-                                        <i class="fas fa-file-medical mr-2"></i>
+                                        <i class="fas fa-eye"></i>
                                         Diagnóstico y Tratamiento
                                     </h5>
                                     <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">

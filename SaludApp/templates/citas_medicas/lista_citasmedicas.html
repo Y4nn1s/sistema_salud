@@ -55,7 +55,7 @@
                     <td class="d-flex justify-content-center">
                         {% if visita.diagnostico %}
                             <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#modalVerDiagnostico{{ visita.id }}">
-                                Ver Detalles
+                                <i class="fas fa-file-medical"></i> Ver Detalles
                             </button>
                         {% else %}
                             <span class="text-muted">Sin diagnóstico</span>
@@ -65,13 +65,12 @@
                     <td>{{ visita.fecha|date:"d/m/Y H:i" }}</td>
 
                     <td style="display: flex; justify-content: center; gap: 10px;">
-                        <!-- Botón para abrir modal de añadir diagnóstico -->
+                        <!-- Botón para Abrir Modal de Añadir Diagnóstico -->
                         <button type="button" 
-                        
                                 class="btn btn-warning btn-sm" 
                                 data-toggle="modal" 
                                 data-target="#modalDiagnostico{{ visita.id }}">
-                            Añadir Diagnóstico
+                                <i class="fas fa-plus"></i> Añadir Diagnóstico
                         </button>
 
                         <!-- Botón para marcar como completada la cita -->
@@ -133,7 +132,7 @@
                     </div>
                 </div>
 
-
+                {% if visita.diagnostico.id %}
                 <!-- Modal Para Ver/Editar Diagnóstico y Tratamiento -->
                 <div class="modal fade" id="modalVerDiagnostico{{ visita.id }}" tabindex="-1" role="dialog">
                     <div class="modal-dialog modal-lg" role="document">
@@ -213,8 +212,9 @@
                         </form>
                     </div>
                 </div>
-
-
+                    
+                {% endif %}
+                    
                 {% empty %}
                 <tr>
                     <td colspan="6" class="text-center py-4">
