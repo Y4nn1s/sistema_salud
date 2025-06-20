@@ -7,6 +7,9 @@ __pycache__
 db.sqlite3
 media
 
+# Migrations (Iniciales)
+/SaludApp/migrations/0001_initial.py
+
 # Backup files # 
 *.bak
 dump-salud_db3-202506110951.sql
