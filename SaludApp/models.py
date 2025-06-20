@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 #============================================================================
 
 
@@ -184,10 +185,19 @@ class Diagnostico(models.Model):
         verbose_name='Motivo de la consulta'
     )
     diagnostico = models.TextField(
-        verbose_name='Diagnóstico médico'
+        verbose_name='Diagnóstico médico',
+        blank=True,
+        null=True,
     )
     tratamiento = models.TextField(
-        verbose_name='Tratamiento indicado'
+        verbose_name='Tratamiento indicado',
+        blank=True,
+        null=True,
+    )
+    observacion = models.TextField(
+        verbose_name='Observaciónes adicionales',
+        blank=True,
+        null=True,
     )
     fecha_diagnostico = models.DateTimeField(
         auto_now_add=True,
@@ -204,6 +214,17 @@ class Diagnostico(models.Model):
 
     def __str__(self):
         return f"Cita médica para {self.visita} ({self.fecha_diagnostico.date()})"
+    
+    def clean(self):
+        super().clean()
+
+        # Validación 1: Por lo menos un campo presente
+        if not any([self.diagnostico, self.tratamiento, self.observacion]):
+            raise ValidationError("Debe completar al menos una de las dos partes del formulario: Diagnóstico con tratamiento u observación.")
+
+        # Validación 2: Si hay diagnóstico, debe haber tratamiento
+        if self.diagnostico and not self.tratamiento:
+            raise ValidationError("Si registra un diagnóstico, debe incluir el tratamiento correspondiente.")
     
     class Meta:
         verbose_name = 'Cita Médica'

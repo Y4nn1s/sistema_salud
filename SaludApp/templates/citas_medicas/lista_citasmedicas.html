@@ -102,26 +102,42 @@
                                 <div class="modal-body">
                                     <!-- Campo Diagnóstico -->
                                     <div class="form-group">
-                                        {{ form_diagnostico.diagnostico.label_tag }}
+                                        <label for="{{ form_diagnostico.diagnostico.id_for_label }}">
+                                            <i class="fas fa-stethoscope"></i> {{ form_diagnostico.diagnostico.label }}
+                                        </label>
                                         {{ form_diagnostico.diagnostico }}
                                         {% if form_diagnostico.diagnostico.errors %}
                                             <div class="invalid-feedback d-block text-danger">
                                                 {{ form_diagnostico.diagnostico.errors }}
                                             </div>
                                         {% endif %}
+                                        <small class="form-text text-muted">Descripción de la condición médica identificada</small>
                                     </div>
 
                                     <!-- Campo Tratamiento -->
                                     <div class="form-group">
-                                        {{ form_diagnostico.tratamiento.label_tag }}
+                                        <label for="{{ form_diagnostico.tratamiento.id_for_label }}">
+                                            <i class="fas fa-pills"></i> {{ form_diagnostico.tratamiento.label }}
+                                        </label>
                                         {{ form_diagnostico.tratamiento }}
                                         {% if form_diagnostico.tratamiento.errors %}
                                             <div class="invalid-feedback d-block text-danger">
                                                 {{ form_diagnostico.tratamiento.errors }}
                                             </div>
                                         {% endif %}
-                                    </div>  
-                                </div>  
+                                        <small class="form-text text-muted">Medicamentos o terapias recomendadas</small>
+                                    </div>
+                                    
+                                    <!-- Campo Observaciones -->
+                                    <div class="form-group">
+                                        <label for="id_observacion">
+                                            <i class="fas fa-clipboard-list"></i> Observaciones adicionales
+                                        </label>
+                                        <textarea class="form-control" name="observacion" id="id_observacion" 
+                                                rows="3" placeholder="Registre aquí cualquier observación relevante"></textarea>
+                                        <small class="form-text text-muted">Opcional: indicaciones especiales, recomendaciones, etc.</small>
+                                    </div>
+                                </div>
 
                                 <div class="modal-footer">
                                     <button type="submit" class="btn btn-success">Guardar</button>
@@ -132,87 +148,96 @@
                     </div>
                 </div>
 
-                {% if visita.diagnostico.id %}
                 <!-- Modal Para Ver/Editar Diagnóstico y Tratamiento -->
-                <div class="modal fade" id="modalVerDiagnostico{{ visita.id }}" tabindex="-1" role="dialog">
-                    <div class="modal-dialog modal-lg" role="document">
-                        <form method="post" action="{% url 'editar_diagnostico' visita.diagnostico.id %}">
-                            {% csrf_token %}
-                            <div class="modal-content">
-                                <div class="modal-header bg-info text-white">
-                                    <h5 class="modal-title">
-                                        <i class="fas fa-edit mr-2"></i>
-                                        Editar Diagnóstico
-                                    </h5>
-                                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
+                {% if visita.diagnostico.id %}
+                    <div class="modal fade" id="modalVerDiagnostico{{ visita.id }}" tabindex="-1" role="dialog">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <form method="post" action="{% url 'editar_diagnostico' visita.diagnostico.id %}">
+                                {% csrf_token %}
+                                <div class="modal-content">
+                                    <div class="modal-header bg-info text-white">
+                                        <h5 class="modal-title">
+                                            <i class="fas fa-edit mr-2"></i>
+                                            Editar Diagnóstico
+                                        </h5>
+                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
 
-                                <div class="modal-body">
-                                    <!-- Información del paciente -->
-                                    <div class="card mb-4 border-info">
-                                        <div class="card-body py-2">
-                                            <div class="row">
-                                                <div class="col-md-12 text-center">
-                                                    <div class="d-flex align-items-center justify-content-center mb-2">
-                                                        <i class="fas fa-user-injured fa-lg text-info mr-3"></i>
-                                                        <div>
-                                                            <h6 class="mb-0 text-muted">Paciente</h6>
-                                                            <h5 class="mb-0">{{ visita.empleado.nombre }} {{ visita.empleado.apellido }}</h5>
+                                    <div class="modal-body">
+                                        <!-- Información del paciente -->
+                                        <div class="card mb-4 border-info">
+                                            <div class="card-body py-2">
+                                                <div class="row">
+                                                    <div class="col-md-12 text-center">
+                                                        <div class="d-flex align-items-center justify-content-center mb-2">
+                                                            <i class="fas fa-user-injured fa-lg text-info mr-3"></i>
+                                                            <div>
+                                                                <h6 class="mb-0 text-muted">Paciente</h6>
+                                                                <h5 class="mb-0">{{ visita.empleado.nombre }} {{ visita.empleado.apellido }}</h5>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    <!-- Campo Diagnóstico (editable) -->
-                                    <div class="form-group">
-                                        <label class="form-label font-weight-bold">
-                                            <i class="fas fa-stethoscope mr-1"></i> Diagnóstico
-                                        </label>
-                                        <textarea class="form-control" name="diagnostico" rows="4" 
-                                                style="min-height: 100px;">{{ visita.diagnostico.diagnostico }}</textarea>
-                                    </div>
+                                        
+                                        <!-- Campo Diagnóstico (editable) -->
+                                        <div class="form-group">
+                                            <label class="form-label font-weight-bold">
+                                                <i class="fas fa-stethoscope mr-1"></i> Diagnóstico
+                                            </label>
+                                            <textarea class="form-control" name="diagnostico" rows="4" 
+                                                    style="min-height: 100px;">{{ visita.diagnostico.diagnostico }}</textarea>
+                                        </div>
 
-                                    <!-- Campo Tratamiento (editable) -->
-                                    <div class="form-group">
-                                        <label class="form-label font-weight-bold">
-                                            <i class="fas fa-prescription-bottle-alt mr-1"></i> Tratamiento
-                                        </label>
-                                        <textarea class="form-control" name="tratamiento" rows="4" 
-                                                style="min-height: 100px;">{{ visita.diagnostico.tratamiento }}</textarea>
-                                    </div>
-                                    
-                                    <!-- Fecha del diagnóstico -->
-                                    <div class="form-group mt-4 text-center">
-                                        <label class="form-label d-block font-weight-bold">
-                                            <i class="far fa-calendar-alt mr-1"></i> Fecha del diagnóstico
-                                        </label>
-                                        <div class="mt-2">
-                                            <div class="d-inline-block bg-light p-2 rounded">
-                                                <span class="font-weight-bold" style="font-size: 1.1rem;">
-                                                    {{ visita.diagnostico.fecha_diagnostico|date:'d/m/Y H:i' }}
-                                                </span>
+                                        <!-- Campo Tratamiento (editable) -->
+                                        <div class="form-group">
+                                            <label class="form-label font-weight-bold">
+                                                <i class="fas fa-prescription-bottle-alt mr-1"></i> Tratamiento
+                                            </label>
+                                            <textarea class="form-control" name="tratamiento" rows="4" 
+                                                    style="min-height: 100px;">{{ visita.diagnostico.tratamiento }}</textarea>
+                                        </div>
+
+                                        <!-- Campo Observaciones (editable) -->
+                                        <div class="form-group">
+                                            <label class="form-label font-weight-bold">
+                                                <i class="fas fa-clipboard-list mr-1"></i> Observaciones
+                                            </label>
+                                            <textarea class="form-control" name="observacion" rows="3"
+                                                    style="min-height: 80px;">{{ visita.diagnostico.observacion|default:'' }}</textarea>
+                                            <small class="form-text text-muted">Notas adicionales relevantes</small>
+                                        </div>
+                                        
+                                        <!-- Fecha del diagnóstico -->
+                                        <div class="form-group mt-4 text-center">
+                                            <label class="form-label d-block font-weight-bold">
+                                                <i class="far fa-calendar-alt mr-1"></i> Fecha del diagnóstico
+                                            </label>
+                                            <div class="mt-2">
+                                                <div class="d-inline-block bg-light p-2 rounded">
+                                                    <span class="font-weight-bold" style="font-size: 1.1rem;">
+                                                        {{ visita.diagnostico.fecha_diagnostico|date:'d/m/Y H:i' }}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="modal-footer">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save mr-1"></i> Guardar Cambios
-                                    </button>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                                        <i class="fas fa-times mr-1"></i> Cancelar
-                                    </button>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save mr-1"></i> Guardar Cambios
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                            <i class="fas fa-times mr-1"></i> Cancelar
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
-                </div>
-                    
                 {% endif %}
                     
                 {% empty %}
