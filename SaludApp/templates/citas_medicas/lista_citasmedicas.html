@@ -55,11 +55,8 @@
                     <td class="d-flex justify-content-center">
                         {% if visita.diagnostico %}
                             <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#modalVerDiagnostico{{ visita.id }}">
-                                Ver Detalles
+                                <i class="fas fa-file-medical"></i> Ver Detalles
                             </button>
-                            <!-- <a href="{% url 'editar_diagnostico' visita.diagnostico.id %}" class="btn btn-sm btn-primary">
-                                <i class="fas fa-edit"></i>
-                            </a> -->
                         {% else %}
                             <span class="text-muted">Sin diagnóstico</span>
                         {% endif %}
@@ -68,13 +65,12 @@
                     <td>{{ visita.fecha|date:"d/m/Y H:i" }}</td>
 
                     <td style="display: flex; justify-content: center; gap: 10px;">
-                        <!-- Botón para abrir modal de añadir diagnóstico -->
+                        <!-- Botón para Abrir Modal de Añadir Diagnóstico -->
                         <button type="button" 
-                        
                                 class="btn btn-warning btn-sm" 
                                 data-toggle="modal" 
                                 data-target="#modalDiagnostico{{ visita.id }}">
-                            Añadir Diagnóstico
+                                <i class="fas fa-plus"></i> Añadir Diagnóstico
                         </button>
 
                         <!-- Botón para marcar como completada la cita -->
@@ -136,37 +132,89 @@
                     </div>
                 </div>
 
-
-                <!-- Modal Para Ver el Diagnóstico y Tratamiento -->
+                {% if visita.diagnostico.id %}
+                <!-- Modal Para Ver/Editar Diagnóstico y Tratamiento -->
                 <div class="modal fade" id="modalVerDiagnostico{{ visita.id }}" tabindex="-1" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <form method="post" action="{% url 'editar_diagnostico' visita.diagnostico.id %}">
+                            {% csrf_token %}
+                            <div class="modal-content">
+                                <div class="modal-header bg-info text-white">
+                                    <h5 class="modal-title">
+                                        <i class="fas fa-edit mr-2"></i>
+                                        Editar Diagnóstico
+                                    </h5>
+                                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
 
-                            <div class="modal-header">
-                                <h5 class="modal-title">Detalles del Diagnóstico</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
+                                <div class="modal-body">
+                                    <!-- Información del paciente -->
+                                    <div class="card mb-4 border-info">
+                                        <div class="card-body py-2">
+                                            <div class="row">
+                                                <div class="col-md-12 text-center">
+                                                    <div class="d-flex align-items-center justify-content-center mb-2">
+                                                        <i class="fas fa-user-injured fa-lg text-info mr-3"></i>
+                                                        <div>
+                                                            <h6 class="mb-0 text-muted">Paciente</h6>
+                                                            <h5 class="mb-0">{{ visita.empleado.nombre }} {{ visita.empleado.apellido }}</h5>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Campo Diagnóstico (editable) -->
+                                    <div class="form-group">
+                                        <label class="form-label font-weight-bold">
+                                            <i class="fas fa-stethoscope mr-1"></i> Diagnóstico
+                                        </label>
+                                        <textarea class="form-control" name="diagnostico" rows="4" 
+                                                style="min-height: 100px;">{{ visita.diagnostico.diagnostico }}</textarea>
+                                    </div>
+
+                                    <!-- Campo Tratamiento (editable) -->
+                                    <div class="form-group">
+                                        <label class="form-label font-weight-bold">
+                                            <i class="fas fa-prescription-bottle-alt mr-1"></i> Tratamiento
+                                        </label>
+                                        <textarea class="form-control" name="tratamiento" rows="4" 
+                                                style="min-height: 100px;">{{ visita.diagnostico.tratamiento }}</textarea>
+                                    </div>
+                                    
+                                    <!-- Fecha del diagnóstico -->
+                                    <div class="form-group mt-4 text-center">
+                                        <label class="form-label d-block font-weight-bold">
+                                            <i class="far fa-calendar-alt mr-1"></i> Fecha del diagnóstico
+                                        </label>
+                                        <div class="mt-2">
+                                            <div class="d-inline-block bg-light p-2 rounded">
+                                                <span class="font-weight-bold" style="font-size: 1.1rem;">
+                                                    {{ visita.diagnostico.fecha_diagnostico|date:'d/m/Y H:i' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save mr-1"></i> Guardar Cambios
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                        <i class="fas fa-times mr-1"></i> Cancelar
+                                    </button>
+                                </div>
                             </div>
-
-                            <div class="modal-body">
-                                <p><strong>Diagnóstico:</strong> 
-                                    {{ visita.diagnostico.diagnostico }}
-                                </p>
-                                <p><strong>Tratamiento:</strong> 
-                                    {{ visita.diagnostico.tratamiento }}
-                                </p>
-                            </div>
-
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                            </div>
-
-                        </div>
+                        </form>
                     </div>
                 </div>
-
-
+                    
+                {% endif %}
+                    
                 {% empty %}
                 <tr>
                     <td colspan="6" class="text-center py-4">
