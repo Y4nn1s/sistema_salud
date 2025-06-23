@@ -97,27 +97,39 @@
                                                         <label for="cedula{{ empleado.id }}">Cédula</label>
                                                         <input  type="text" class="form-control" id="cedula{{ empleado.id }}" 
                                                                 name="cedula" value="{{ empleado.cedula }}"
-                                                                pattern="[0-9]+" title="Solo números permitidos">
+                                                                pattern="[0-9]+" title="Solo números permitidos"
+                                                                required>
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="p00{{ empleado.id }}">P00</label>
                                                         <input  type="text" class="form-control" id="p00{{ empleado.id }}" 
                                                                 name="p00" value="{{ empleado.p00 }}"
-                                                                pattern="[0-9]+" title="Solo números permitidos">
+                                                                pattern="[0-9]+" title="Solo números permitidos"
+                                                                required>
                                                     </div>
 
                                                     <div class="form-group">
                                                         <label for="nombre{{ empleado.id }}">Nombre</label>
-                                                        <input  type="text" class="form-control" id="nombre{{ empleado.id }}" 
-                                                                name="nombre" value="{{ empleado.nombre }}"
-                                                                required>
+                                                        <input  type="text" 
+                                                                class="form-control" 
+                                                                id="nombre{{ empleado.id }}"
+                                                                name="nombre"
+                                                                value="{{ empleado.nombre }}"
+                                                                required
+                                                                pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+"
+                                                                title="Solo letras y espacios (no números o caracteres especiales)">
                                                     </div>
 
                                                     <div class="form-group">
                                                         <label for="apellido{{ empleado.id }}">Apellido</label>
-                                                        <input  type="text" class="form-control" id="apellido{{ empleado.id }}" 
-                                                                name="apellido" value="{{ empleado.apellido }}"
-                                                                required>
+                                                        <input  type="text" 
+                                                                class="form-control" 
+                                                                id="apellido{{ empleado.id }}"
+                                                                name="apellido"
+                                                                value="{{ empleado.apellido }}"
+                                                                required
+                                                                pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+"
+                                                                title="Solo letras y espacios (no números o caracteres especiales)">
                                                     </div>
                                                     
                                                     <!-- Para mostrar errores -->
@@ -224,27 +236,45 @@
                     <!-- Formulario de registro -->
                     <form method="post" action="{% url 'registrar_empleado' %}" id="registrarEmpleadoForm">
                         {% csrf_token %}
+                        
+                        <!-- Campo para Cédula -->
                         <div class="form-group">
                             <label for="id_cedula">Cédula</label>
                             <input type="text" class="form-control" id="id_cedula"
                                     name="cedula" required
                                     pattern="[0-9]+" title="Sólo números permitidos">
                         </div>
+
+                        <!-- Campo para el P00 -->
                         <div class="form-group">
                             <label for="id_p00">P00</label>
                             <input type="text" class="form-control" id="id_p00"
                                     name="p00" required
                                     pattern="[0-9]+" title="Sólo números permitidos">
                         </div>
+
+                        <!-- Campo para el Nombre -->
                         <div class="form-group">
                             <label for="id_nombre">Nombre</label>
-                            <input type="text" class="form-control" id="id_nombre"
-                                    name="nombre" required>
+                            <input  type="text" 
+                                    class="form-control" 
+                                    id="id_nombre"
+                                    name="nombre" 
+                                    required
+                                    pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+"
+                                    title="Solo letras y espacios (no números o caracteres especiales)">
                         </div>
+
+                        <!-- Campo para el Apellido -->
                         <div class="form-group">
                             <label for="id_apellido">Apellido</label>
-                            <input type="text" class="form-control" id="id_apellido"
-                                    name="apellido" required>
+                            <input  type="text" 
+                                    class="form-control" 
+                                    id="id_apellido"
+                                    name="apellido" 
+                                    required
+                                    pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+"
+                                    title="Solo letras y espacios (no números o caracteres especiales)">
                         </div>
                         <div id="formErrors" class="alert alert-danger d-none"></div>
                         <div class="d-flex justify-content-center">
