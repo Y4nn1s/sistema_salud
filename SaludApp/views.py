@@ -6,7 +6,7 @@ from .models import Empleado, Visita, Diagnostico, CustomUser
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView, LogoutView
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect
 # from django.core.exceptions import PermissionDenied
 
@@ -71,18 +71,60 @@ class ListaEmpleadosView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 class CrearEmpleadoView(LoginRequiredMixin, CreateView):
     model = Empleado
     form_class = EmpleadoForm
-    template_name = 'empleados/registrar_empleados.html'
+    template_name = 'empleados/lista_empleados.html'
     success_url = reverse_lazy('lista_empleados')
+
+    def form_invalid(self, form):
+        # Extraer todos los mensajes de error
+        error_messages = []
+        for field, errors in form.errors.items():
+            for error in errors:
+                error_messages.append(error)
+        
+        # Guardar en la sesión
+        self.request.session['form_errors'] = error_messages
+        self.request.session['form_data'] = self.request.POST.dict()
+        return redirect('lista_empleados')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Recuperar datos de la sesión
+        context['form_errors'] = self.request.session.pop('form_errors', [])
+        context['form_data'] = self.request.session.pop('form_data', {})
+        context['show_modal'] = bool(context['form_errors'])
+            
+        return context
 
 class EditarEmpleadoView(LoginRequiredMixin, UpdateView):
     model = Empleado
     form_class = EmpleadoForm
-    template_name='empleados/editar_empleado.html'
+    template_name='empleados/lista_empleados.html'
     success_url = reverse_lazy('lista_empleados')
 
-    def form_valid(self, form):
-        messages.success(self.request, 'Empleado actualizado correctamente.')
-        return super().form_valid(form)
+    def form_invalid(self, form):
+        # Extraer todos los mensajes de error
+        error_messages = []
+        for field, errors in form.errors.items():
+            for error in errors:
+                error_messages.append(error)
+        
+        # Guardar en la sesión
+        self.request.session['form_errors'] = error_messages
+        self.request.session['form_data'] = self.request.POST.dict()
+        self.request.session['editing_employee'] = self.kwargs['pk']
+        return redirect('lista_empleados')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Recuperar datos de la sesión
+        context['form_errors'] = self.request.session.pop('form_errors', [])
+        context['form_data'] = self.request.session.pop('form_data', {})
+        context['editing_employee'] = self.request.session.pop('editing_employee', None)
+        context['show_edit_modal'] = bool(context['form_errors'] and context['editing_employee'])
+            
+        return context
 
 class EliminarEmpleadoView(LoginRequiredMixin, DeleteView):
     model = Empleado
@@ -203,10 +245,6 @@ class CrearDiagnosticoView(LoginRequiredMixin, CreateView):
         form.save()
         messages.success(self.request, 'Diagnóstico guardado exitosamente.')
         return super().form_valid(form)
-    
-    """ def form_invalid(self, form):
-        messages.error(self.request, 'Por favor corrige los errores del formulario.')
-        return super().form_invalid(form) """
 
 class EditarDiagnosticoView(LoginRequiredMixin, UpdateView):
     model = Diagnostico

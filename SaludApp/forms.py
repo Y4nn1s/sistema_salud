@@ -35,22 +35,34 @@ class EmpleadoForm(forms.ModelForm):
         model = Empleado
         fields = ['cedula', 'p00', 'nombre', 'apellido']
         widgets = {
-            'cedula': forms.TextInput(attrs={'class': 'form-control'}),
-            'p00': forms.TextInput(attrs={'class': 'form-control'}),
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'apellido': forms.TextInput(attrs={'class': 'form-control'}),
+            'cedula': forms.TextInput(attrs={
+                'pattern': '[0-9]+',
+                'title': 'Solo números permitidos'
+            }),
+            'p00': forms.TextInput(attrs={
+                'pattern': '[0-9]+',
+                'title': 'Solo números permitidos'
+            }),
+            'nombre': forms.TextInput(attrs={
+                'pattern': '[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+',
+                'title': 'Solo letras y espacios'
+            }),
+            'apellido': forms.TextInput(attrs={
+                'pattern': '[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+',
+                'title': 'Solo letras y espacios'
+            }),
         }
 
     def clean_cedula(self):
         cedula = self.cleaned_data['cedula']
-        if Empleado.objects.filter(cedula=cedula).exclude(id=self.instance.id).exists():
-            raise ValidationError("Esta cédula ya está registrada.")
+        if Empleado.objects.filter(cedula=cedula).exists():
+            raise forms.ValidationError("Esta cédula ya está registrada.")
         return cedula
     
     def clean_p00(self):
         p00 = self.cleaned_data['p00']
-        if Empleado.objects.filter(p00=p00).exclude(id=self.instance.id).exists():
-            raise ValidationError("Este P00 ya está registrado.")
+        if Empleado.objects.filter(p00=p00).exists():
+            raise forms.ValidationError("Este P00 ya está registrado.")
         return p00
 #============================================================================
 

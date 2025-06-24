@@ -90,28 +90,11 @@ class CustomUser(AbstractUser):
 
 #============================================================================
 class Empleado(models.Model):
-    cedula = models.CharField(
-        max_length=20,
-        unique=True,
-        verbose_name='Cédula de Identidad'
-    )
-    p00 = models.CharField(
-        max_length=20,
-        unique=True,
-        verbose_name='Número P00'
-    )
-    nombre = models.CharField(
-        max_length=100,
-        verbose_name='Nombres'
-    )
-    apellido = models.CharField(
-        max_length=100,
-        verbose_name='Apellidos'
-    )
-    fecha_registro = models.DateTimeField(
-        default=timezone.now,
-        verbose_name='Fecha de registro'
-    )
+    cedula = models.CharField(max_length=20, unique=True, verbose_name='Cédula de Identidad')
+    p00 = models.CharField(max_length=20, unique=True, verbose_name='Número P00')
+    nombre = models.CharField(max_length=100, verbose_name='Nombres')
+    apellido = models.CharField(max_length=100, verbose_name='Apellidos')
+    fecha_registro = models.DateTimeField(default=timezone.now, verbose_name='Fecha de registro')
 
     def __str__(self):
         return f"{self.nombre} {self.apellido} ({self.cedula})"
@@ -134,29 +117,10 @@ class Visita(models.Model):
         ('control', 'Control'),
     ]
     
-    empleado = models.ForeignKey(
-        Empleado,
-        on_delete=models.CASCADE,
-        related_name='visitas',
-        verbose_name='Empleado visitante'
-    )
-    motivo = models.CharField(
-        max_length=50,
-        choices=MOTIVO_CHOICES,
-        default='consulta',
-        verbose_name='Motivo de la visita'
-    )
-
-    estado = models.CharField(
-        max_length=20,
-        choices=[('pendiente', 'Pendiente'), ('completada', 'Completada')],
-        default='pendiente'
-    )
-    
-    fecha = models.DateTimeField(
-        default=timezone.now,
-        verbose_name='Fecha y hora de la visita'
-    )
+    empleado = models.ForeignKey(Empleado, on_delete=models.CASCADE, related_name='visitas', verbose_name='Empleado visitante')
+    motivo = models.CharField(max_length=50, choices=MOTIVO_CHOICES, default='consulta', verbose_name='Motivo de la visita')
+    estado = models.CharField(max_length=20, choices=[('pendiente', 'Pendiente'), ('completada', 'Completada')], default='pendiente')
+    fecha = models.DateTimeField(default=timezone.now, verbose_name='Fecha y hora de la visita')
 
 #============================================================================
 
@@ -171,38 +135,12 @@ class Diagnostico(models.Model):
         ('emergencia', 'Emergencia'),
         ('seguimiento', 'Seguimiento')
     ]
-    visita = models.OneToOneField(
-        Visita,
-        on_delete=models.CASCADE,
-        related_name='diagnostico',
-        verbose_name='Visita'
-    )
-    motivo = models.CharField(
-        max_length=50,
-        choices=MOTIVO_CHOICES,
-        null=True,
-        blank=True,
-        verbose_name='Motivo de la consulta'
-    )
-    diagnostico = models.TextField(
-        verbose_name='Diagnóstico médico',
-        blank=True,
-        null=True,
-    )
-    tratamiento = models.TextField(
-        verbose_name='Tratamiento indicado',
-        blank=True,
-        null=True,
-    )
-    observacion = models.TextField(
-        verbose_name='Observaciónes adicionales',
-        blank=True,
-        null=True,
-    )
-    fecha_diagnostico = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Fecha del diagnóstico'
-    )
+    visita = models.OneToOneField(Visita, on_delete=models.CASCADE, related_name='diagnostico', verbose_name='Visita')
+    motivo = models.CharField(max_length=50, choices=MOTIVO_CHOICES, null=True, blank=True, verbose_name='Motivo de la consulta')
+    diagnostico = models.TextField(verbose_name='Diagnóstico médico', blank=True, null=True)
+    tratamiento = models.TextField(verbose_name='Tratamiento indicado', blank=True, null=True)
+    observacion = models.TextField(verbose_name='Observaciónes adicionales', blank=True, null=True)
+    fecha_diagnostico = models.DateTimeField(auto_now_add=True, verbose_name='Fecha del diagnóstico')
     medico = models.ForeignKey(
         CustomUser,
         on_delete=models.SET_NULL,
