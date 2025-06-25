@@ -9,6 +9,35 @@
     <!-- Bootstrap 4 CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <!-- Estilos Mensajes de Error -->
+    <style>
+        /* Estilos para mensajes de error personalizados */
+        .custom-alert {
+            border-left: 5px solid #dc3545;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .custom-alert .alert-heading {
+            color: #721c24;
+            font-weight: 600;
+        }
+        
+        .error-list {
+            line-height: 1.6;
+        }
+        
+        .error-list br {
+            display: block;
+            content: "";
+            margin: 8px 0;
+        }
+        
+        .custom-alert .fa-exclamation-circle {
+            color: #dc3545;
+        }
+    </style>
 </head>
 
 <body>
@@ -26,13 +55,28 @@
     {% if messages %}
         <div class="container mt-2">
             {% for message in messages %}
-                {% if message.extra_tags != 'form_errors' %}  <!-- Excluir errores de formulario -->
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                    {{ message }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
+                {% if 'safe' in message.extra_tags %}
+                    <div class="alert alert-danger alert-dismissible fade show custom-alert">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-circle mr-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <h5 class="alert-heading mb-1">Error de Validación</h5>
+                                <div class="error-list">
+                                    {{ message|safe }}
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% else %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
                 {% endif %}
             {% endfor %}
         </div>
@@ -166,31 +210,17 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-
                 <div class="modal-body">
                     <!-- Formulario de registro -->
                     <form method="post" action="{% url 'registrar_empleado' %}" id="registrarEmpleadoForm">
                         {% csrf_token %}
-
-                        <!-- Mostrar errores generales de invalidación -->
-                        {% if form_errors %}
-                            <div class="alert alert-danger">
-                                <strong>Errores:</strong>
-                                <ul>
-                                    {% for error in form_errors %}
-                                        <li>{{ error }}</li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        {% endif %}
                         
                         <!-- Campo para Cédula -->
                         <div class="form-group">
                             <label for="id_cedula">Cédula</label>
                             <input type="text" class="form-control" id="id_cedula"
                                     name="cedula" required
-                                    pattern="[0-9]+" title="Sólo números permitidos"
-                                    value="{{ form_data.cedula|default_if_none:'' }}">
+                                    pattern="\d{8}" title="Debe ingresar exactamente 8 dígitos numéricos">
                         </div>
 
                         <!-- Campo para el P00 -->
@@ -198,8 +228,7 @@
                             <label for="id_p00">P00</label>
                             <input type="text" class="form-control" id="id_p00"
                                     name="p00" required
-                                    pattern="[0-9]+" title="Sólo números permitidos"
-                                    value="{{ form_data.p00|default_if_none:'' }}">
+                                    pattern="\d{6}" title="Debe ingresar exactamente 6 dígitos numéricos">
                         </div>
 
                         <!-- Campo para el Nombre -->
@@ -211,8 +240,7 @@
                                     name="nombre" 
                                     required
                                     pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+"
-                                    title="Solo letras y espacios (no números o caracteres especiales)"
-                                    value="{{ form_data.nombre|default_if_none:'' }}">
+                                    title="Solo letras y espacios (no números o caracteres especiales)">
                         </div>
 
                         <!-- Campo para el Apellido -->
@@ -224,10 +252,9 @@
                                     name="apellido" 
                                     required
                                     pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+"
-                                    title="Solo letras y espacios (no números o caracteres especiales)"
-                                    value="{{ form_data.apellido|default_if_none:'' }}">
+                                    title="Solo letras y espacios (no números o caracteres especiales)">
                         </div>
-                        <div id="formErrors" class="alert alert-danger d-none"></div>
+
                         <div class="d-flex justify-content-center">
                             <button type="submit" class="btn btn-primary">Registrar</button>
                         </div>
@@ -252,18 +279,6 @@
                     <div class="modal-body">
                         <form method="post" action="{% url 'editar_empleado' empleado.id %}">
                             {% csrf_token %}
-
-                            <!-- Mostrar errores aquí -->
-                            {% if editing_employee == empleado.id and form_errors %}
-                                <div class="alert alert-danger">
-                                    <strong>Errores:</strong>
-                                    <ul>
-                                        {% for error in form_errors %}
-                                            <li>{{ error }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            {% endif %}
 
                             <!-- Campos -->
                             <div class="form-group">
@@ -305,9 +320,6 @@
                                         title="Solo letras y espacios (no números o caracteres especiales)">
                             </div>
                             
-                            <!-- Para mostrar errores -->
-                            <div id="formErrors{{ empleado.id }}" class="alert alert-danger d-none"></div>
-                            
                             <button type="submit" class="btn btn-primary">Guardar cambios</button>
                         </form>
                     </div>
@@ -326,22 +338,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <!-- Scripts para abrir modales automáticamente -->
-    {% if show_modal %}
-        <script>
-            $(document).ready(function() {
-                    $('#registrarEmpleadoModal').modal('show');
+    <!-- Resetear formulario cuando se cierra el modal -->
+    <script>
+        $(document).ready(function() {
+            $('#registrarEmpleadoModal').on('hidden.bs.modal', function () {
+                $(this).find('form')[0].reset();
             });
-        </script>
-    {% endif %}
-
-    {% if show_edit_modal %}
-        <script>
-            $(document).ready(function() {
-                    $('#editarEmpleadoModal{{ editing_employee }}').modal('show');
-            });
-        </script>
-    {% endif %}
+        });
+    </script>
 </body>
 
 {% include 'footer.html' %}

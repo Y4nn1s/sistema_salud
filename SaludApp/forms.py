@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+import re
 #============================================================================
 
 # User = get_user_model()
@@ -36,12 +37,12 @@ class EmpleadoForm(forms.ModelForm):
         fields = ['cedula', 'p00', 'nombre', 'apellido']
         widgets = {
             'cedula': forms.TextInput(attrs={
-                'pattern': '[0-9]+',
-                'title': 'Solo números permitidos'
+                'pattern': '\d{8}',
+                'title': 'Debe ingresar exactamente 8 dígitos numéricos'
             }),
             'p00': forms.TextInput(attrs={
-                'pattern': '[0-9]+',
-                'title': 'Solo números permitidos'
+                'pattern': '\d{6}',
+                'title': 'Debe ingresar exactamente 6 dígitos numéricos'
             }),
             'nombre': forms.TextInput(attrs={
                 'pattern': '[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+',
@@ -55,13 +56,25 @@ class EmpleadoForm(forms.ModelForm):
 
     def clean_cedula(self):
         cedula = self.cleaned_data['cedula']
-        if Empleado.objects.filter(cedula=cedula).exists():
+
+        # Validar formato (8 dígitos)
+        if not re.fullmatch(r'\d{8}', cedula):
+            raise forms.ValidationError("La cédula debe tener exactamente 8 dígitos numéricos.")
+
+        # Validar unicidad (excluyendo el registro actual)
+        if Empleado.objects.filter(cedula=cedula).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError("Esta cédula ya está registrada.")
         return cedula
-    
+
     def clean_p00(self):
         p00 = self.cleaned_data['p00']
-        if Empleado.objects.filter(p00=p00).exists():
+
+        # Validar formato (6 dígitos)
+        if not re.fullmatch(r'\d{6}', p00):
+            raise forms.ValidationError("El P00 debe tener exactamente 6 dígitos numéricos.")
+
+        # Validar unicidad (excluyendo el registro actual)
+        if Empleado.objects.filter(p00=p00).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError("Este P00 ya está registrado.")
         return p00
 #============================================================================
