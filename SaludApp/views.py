@@ -74,6 +74,11 @@ class CrearEmpleadoView(LoginRequiredMixin, CreateView):
     template_name = 'empleados/registrar_empleados.html'
     success_url = reverse_lazy('lista_empleados')
 
+    def form_valid(self, form):
+        # Mostrar mensaje de éxito
+        messages.success(self.request, 'Empleado creado exitosamente.')
+        return super().form_valid(form)
+
     def form_invalid(self, form):
         # Agrupar todos los errores en una lista
         error_list = []
@@ -94,6 +99,11 @@ class EditarEmpleadoView(LoginRequiredMixin, UpdateView):
     template_name='empleados/lista_empleados.html'
     success_url = reverse_lazy('lista_empleados')
 
+    def form_valid(self, form):
+        # Mostrar mensaje de éxito
+        messages.success(self.request, 'Empleado actualizado exitosamente.')
+        return super().form_valid(form)
+
     def form_invalid(self, form):
         # Agrupar todos los errores en una lista
         error_list = []
@@ -113,12 +123,12 @@ class EliminarEmpleadoView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('lista_empleados')
 
     # Deshabilitar el template de confirmación
-    def get(self, request, *args, **kwargs):
-        return HttpResponseRedirect(self.success_url)
+    """ def get(self, request, *args, **kwargs):
+        return HttpResponseRedirect(self.success_url) """
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, 'Empleado eliminado correctamente')
-        return super().delete(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Empleado eliminado correctamente.')
+        return super().post(request, *args, **kwargs)
 
 #============================================================================
 #=============================== VISITAS ====================================
