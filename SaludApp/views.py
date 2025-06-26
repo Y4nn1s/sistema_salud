@@ -9,6 +9,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.contrib import messages
+from django.db.models import Q
 
 #============================================================================
 
@@ -57,6 +58,20 @@ class ListaEmpleadosView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     template_name = 'empleados/lista_empleados.html'
     context_object_name = 'empleados'
     paginate_by = 10
+    ordering = ['-fecha_registro']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()  # Usa el ordering
+
+        # Búsqueda por texto
+        q = self.request.GET.get('q')
+        if q:
+            queryset = queryset.filter(
+                Q(nombre__icontains=q) |
+                Q(apellido__icontains=q) |
+                Q(cedula__icontains=q)
+            )
+        return queryset
 
     # Permiso a la Vista para Recepcionistas y Administradores
     def test_func(self):
@@ -121,10 +136,6 @@ class EditarEmpleadoView(LoginRequiredMixin, UpdateView):
 class EliminarEmpleadoView(LoginRequiredMixin, DeleteView):
     model = Empleado
     success_url = reverse_lazy('lista_empleados')
-
-    # Deshabilitar el template de confirmación
-    """ def get(self, request, *args, **kwargs):
-        return HttpResponseRedirect(self.success_url) """
 
     def post(self, request, *args, **kwargs):
         messages.success(request, 'Empleado eliminado correctamente.')

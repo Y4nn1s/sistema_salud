@@ -67,12 +67,14 @@
                     <td style="display: flex; justify-content: center; gap: 10px;">
 
                         <!-- Botón para Abrir Modal de Añadir Diagnóstico -->
-                        <button type="button" 
-                                class="btn btn-warning btn-sm" 
-                                data-toggle="modal" 
-                                data-target="#modalDiagnostico{{ visita.id }}">
-                                <i class="fas fa-plus"></i> Añadir Diagnóstico
-                        </button>
+                        {% if not visita.diagnostico %}
+                            <button type="button" 
+                                    class="btn btn-warning btn-sm" 
+                                    data-toggle="modal" 
+                                    data-target="#modalDiagnostico{{ visita.id }}">
+                                    <i class="fas fa-plus"></i> Añadir Diagnóstico
+                            </button>
+                        {% endif %}
 
                         <!-- Botón para marcar como completada la cita -->
                         {% if user.is_medico or user.is_admin %}
