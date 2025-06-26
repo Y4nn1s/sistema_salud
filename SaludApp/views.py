@@ -114,11 +114,11 @@ class CrearEmpleadoView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        # Agrupar todos los errores en una lista
+        # Agrupa todos los errores en una lista
         error_list = []
         for field, errors in form.errors.items():
             for error in errors:
-                # Eliminamos el nombre del campo del mensaje
+                # Elimina el nombre del campo del mensaje
                 error_list.append(error)
         
         # Crear un solo mensaje con todos los errores
@@ -202,20 +202,61 @@ class CrearVisitaView(LoginRequiredMixin, CreateView):
     template_name = 'visitas/registrar_visitas.html'
     success_url = reverse_lazy('lista_visitas')
 
+    def form_valid(self, form):
+        # Mostrar mensaje de éxito
+        messages.success(self.request, 'Visita creada exitosamente.')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # Agrupar todos los errores en una lista
+        error_list = []
+        for field, errors in form.errors.items():
+            for error in errors:
+                error_list.append(error)  # Opcional: puedes dejar el campo también
+
+        # Crear un solo mensaje con todos los errores
+        if error_list:
+            error_message = "Por favor corrija el(los) siguiente(s) error(es):<br>" + "<br>".join(error_list)
+            messages.error(self.request, error_message, extra_tags='safe')
+        return super().form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['empleados'] = Empleado.objects.all()
+        return context
+
 class EditarVisitaView(LoginRequiredMixin, UpdateView):
     model = Visita
     form_class = VisitaForm
     template_name = 'visitas/editar_visita.html'
     success_url = reverse_lazy('lista_visitas')
 
+    def form_valid(self, form):
+        messages.success(self.request, 'Visita actualizada correctamente.')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # Agrupa todos los errores
+        error_list = []
+        for field, errors in form.errors.items():
+            for error in errors:
+                error_list.append(error)
+
+        # Muestra mensaje de error formateado
+        if error_list:
+            error_message = "Por favor corrija el(los) siguiente(s) error(es):<br>" + "<br>".join(error_list)
+            messages.error(self.request, error_message, extra_tags='safe')
+
+        return super().form_invalid(form)
+
 class EliminarVisitaView(LoginRequiredMixin, DeleteView):
     model = Visita
     template_name = 'visitas/eliminar_visita.html'
     success_url = reverse_lazy('lista_visitas')
     
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, 'Visita eliminada correctamente')
-        return super().delete(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        messages.success(request, 'Visita eliminada correctamente.')
+        return super().post(request, *args, **kwargs)
 
 #============================================================================
 #============================= CITAS MÉDICAS =================================
@@ -294,7 +335,7 @@ class ListaUsuariosView(LoginRequiredMixin, ListView):
     
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_admin:
-            return redirect('lista_visitas')  # Redirige si no es admin
+            return redirect('acceso_denegado')  # Redirige si no es admin
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):

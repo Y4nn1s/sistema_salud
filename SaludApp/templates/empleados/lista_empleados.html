@@ -63,9 +63,9 @@
 <body>
     <!-- Protección del template - Redirección si no está autenticado -->
     {% if not user.is_authenticated %}
-    <script>
-        window.location.href = "{% url 'login' %}";
-    </script>
+        <script>
+            window.location.href = "{% url 'login' %}";
+        </script>
     {% endif %}
 
     <!-- Nueva Barra de Navegación -->
@@ -165,7 +165,7 @@
             </button>
         </div>
 
-        <div class="table-responsive" style="max-width: 90%; margin: auto;">
+        <div class="table-responsive" style="max-width: 95%; margin: auto;">
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -210,6 +210,7 @@
                         </tr>
 
                     {% empty %}
+                    
                     <!-- Si NO hay registros en la Base de Datos -->
                         <tr>
                             <td colspan="7" class="text-center py-4">
