@@ -319,10 +319,11 @@ class CrearDiagnosticoView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         visita_id = self.kwargs['visita_id']
         visita = get_object_or_404(Visita, id=visita_id)
-        # Asignación de la visita al diagnóstico
+
+        # Asignar visita y médico automáticamente
         form.instance.visita = visita
-        form.instance.medico = self.request.user
-        form.save()
+        form.instance.medico = self.request.user  # <-- Aquí asignamos al médico
+
         messages.success(self.request, 'Diagnóstico guardado exitosamente.')
         return super().form_valid(form)
 
@@ -331,6 +332,16 @@ class EditarDiagnosticoView(LoginRequiredMixin, UpdateView):
     form_class = DiagnosticoForm
     template_name = 'citas_medicas/editar_diagnostico.html'
     success_url = reverse_lazy('lista_citasmedicas')
+
+    def form_valid(self, form):
+
+        if not self.request.user.is_medico:
+            messages.error(self.request, "Solo los médicos pueden crear diagnósticos.")
+            return redirect('lista_citasmedicas')
+
+        form.instance.medico = self.request.user
+        messages.success(self.request, 'Diagnóstico guardado exitosamente.')
+        return super().form_valid(form)
 
 class EliminarDiagnosticoView(LoginRequiredMixin, DeleteView):
     model = Diagnostico

@@ -215,6 +215,21 @@
                                                     style="min-height: 80px;">{{ visita.diagnostico.observacion|default:'' }}</textarea>
                                             <small class="form-text text-muted">Notas adicionales relevantes</small>
                                         </div>
+
+                                        <!-- Médico Responsable -->
+                                        
+                                        {% if visita.diagnostico %}
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-muted">Médico</h6>
+                                                        <h5>{{ visita.diagnostico.medico|default:"Sin médico" }}</h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
                                         
                                         <!-- Fecha del diagnóstico -->
                                         <div class="form-group mt-4 text-center">
