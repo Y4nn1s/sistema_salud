@@ -83,6 +83,25 @@ class ListaEmpleadosView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         else:
             return super().handle_no_permission()
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Agrega cédula con formato
+        empleados = list(context['empleados'])  # Convierte a lista para poder modificar
+        for emp in empleados:
+            cedula = emp.cedula
+            if len(cedula) == 7:
+                emp.cedula_formateada = f"V-{cedula[0]}.{cedula[1:4]}.{cedula[4:]}"
+            elif len(cedula) == 8:
+                emp.cedula_formateada = f"V-{cedula[:2]}.{cedula[2:5]}.{cedula[5:]}"
+            elif len(cedula) == 9:
+                emp.cedula_formateada = f"V-{cedula[:3]}.{cedula[3:6]}.{cedula[6:]}"
+            else:
+                emp.cedula_formateada = f"V-{cedula}"
+
+        context['empleados'] = empleados
+        return context
+    
 class CrearEmpleadoView(LoginRequiredMixin, CreateView):
     model = Empleado
     form_class = EmpleadoForm
@@ -163,7 +182,11 @@ class ListaVisitasView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_medico or user.is_recepcion or user.is_admin:
+        # Muestra solo visitas completadas para médicos
+        if user.is_medico:
+            return Visita.objects.filter(estado='completada').order_by('-fecha')
+        elif user.is_recepcion or user.is_admin:
+        # Recepcionistas y admins ven todas las visitas
             return Visita.objects.all().order_by('-fecha')
         return Visita.objects.none()
 
