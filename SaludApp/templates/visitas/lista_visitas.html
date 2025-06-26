@@ -199,6 +199,26 @@
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap mb-2">
             <h2 class="mb-4"><i class="fas fa-notes-medical"></i> Lista de Visitas</h2>
+
+            <!-- Cuadro de Búsqueda -->
+            <form method="get" class="form-inline my-2 my-lg-0 mr-2">
+                <input  class="form-control mr-sm-2"
+                        type="search"
+                        name="q"
+                        placeholder="Búsqueda específica..."
+                        value="{{ request.GET.q }}"
+                        aria-label="Search">
+                <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </form>
+
+            <!-- Botón Limpiar -->
+            {% if request.GET.q %}
+                <a href="{% url 'lista_visitas' %}" class="btn btn-secondary my-2 my-sm-0">
+                    <i class="fas fa-times"></i> Limpiar
+                </a>
+            {% endif %}
             
             <!-- Botón para abrir el modal -->
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#registrarVisitaModal">
@@ -451,37 +471,37 @@
                     <ul class="pagination">
                         {% if page_obj.has_previous %}
                             <li class="page-item">
-                                <a class="page-link" href="?page=1" aria-label="First">
+                                <a class="page-link" href="?page=1&q={{ request.GET.q }}" aria-label="First">
                                     <span aria-hidden="true">&laquo;&laquo;</span>
                                 </a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}" aria-label="Previous">
                                     <span aria-hidden="true">&laquo;</span>
                                 </a>
                             </li>
                         {% endif %}
-                        
+                
                         {% for num in page_obj.paginator.page_range %}
                             {% if page_obj.number == num %}
                                 <li class="page-item active">
-                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    <a class="page-link" href="?page={{ num }}&q={{ request.GET.q }}">{{ num }}</a>
                                 </li>
                             {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    <a class="page-link" href="?page={{ num }}&q={{ request.GET.q }}">{{ num }}</a>
                                 </li>
                             {% endif %}
                         {% endfor %}
-                        
+                
                         {% if page_obj.has_next %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}" aria-label="Next">
                                     <span aria-hidden="true">&raquo;</span>
                                 </a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&q={{ request.GET.q }}" aria-label="Last">
                                     <span aria-hidden="true">&raquo;&raquo;</span>
                                 </a>
                             </li>

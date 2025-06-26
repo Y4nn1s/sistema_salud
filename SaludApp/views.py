@@ -169,6 +169,29 @@ class ListaVisitasView(LoginRequiredMixin, ListView):
     context_object_name = 'visitas'
     paginate_by = 10
 
+    def get_queryset(self):
+        user = self.request.user
+        queryset = super().get_queryset()  # Aplica el ordenamiento definido (si lo tienes)
+
+        # Filtra según rol
+        if user.is_medico:
+            queryset = Visita.objects.filter(estado='completada').order_by('-fecha')
+        elif user.is_recepcion or user.is_admin:
+            queryset = Visita.objects.all().order_by('-fecha')
+        else:
+            queryset = Visita.objects.none()
+
+        # Búsqueda por texto
+        q = self.request.GET.get('q')
+        if q:
+            queryset = queryset.filter(
+                Q(empleado__nombre__icontains=q) |
+                Q(empleado__apellido__icontains=q) |
+                Q(motivo__icontains=q) |
+                Q(estado__icontains=q)
+            )
+        return queryset
+
     # Permiso a la Vista para Médicos, Recepcionistas y Administradores
     def test_func(self):
         user = self.request.user
@@ -179,16 +202,6 @@ class ListaVisitasView(LoginRequiredMixin, ListView):
             return redirect('acceso_denegado')
         else:
             return super().handle_no_permission()
-
-    def get_queryset(self):
-        user = self.request.user
-        # Muestra solo visitas completadas para médicos
-        if user.is_medico:
-            return Visita.objects.filter(estado='completada').order_by('-fecha')
-        elif user.is_recepcion or user.is_admin:
-        # Recepcionistas y admins ven todas las visitas
-            return Visita.objects.all().order_by('-fecha')
-        return Visita.objects.none()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
