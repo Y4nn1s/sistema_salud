@@ -293,7 +293,7 @@
                             <label for="id_cedula">Cédula</label>
                             <input type="text" class="form-control" id="id_cedula"
                                     name="cedula" required
-                                    pattern="\d{8}" title="Debe ingresar exactamente 8 dígitos numéricos">
+                                    pattern="\d{7,9}" title="Debe ingresar entre 7 y 9 dígitos numéricos">
                         </div>
 
                         <!-- Campo para el P00 -->
@@ -301,7 +301,7 @@
                             <label for="id_p00">P00</label>
                             <input type="text" class="form-control" id="id_p00"
                                     name="p00" required
-                                    pattern="\d{6}" title="Debe ingresar exactamente 6 dígitos numéricos">
+                                    pattern="\d{8}" title="Debe ingresar exactamente 8 dígitos numéricos">
                         </div>
 
                         <!-- Campo para el Nombre -->
@@ -312,8 +312,10 @@
                                     id="id_nombre"
                                     name="nombre" 
                                     required
-                                    pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+"
-                                    title="Solo letras y espacios (no números o caracteres especiales)">
+                                    minlength="2"
+                                    maxlength="20"
+                                    pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,20}"
+                                    title="Debe tener entre 2 y 20 letras y espacios.">
                         </div>
 
                         <!-- Campo para el Apellido -->
@@ -324,8 +326,10 @@
                                     id="id_apellido"
                                     name="apellido" 
                                     required
-                                    pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+"
-                                    title="Solo letras y espacios (no números o caracteres especiales)">
+                                    minlength="2"
+                                    maxlength="20"
+                                    pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,20}"
+                                    title="Debe tener entre 2 y 20 letras y espacios.">
                         </div>
 
                         <div class="d-flex justify-content-center">
@@ -377,8 +381,10 @@
                                         name="nombre"
                                         value="{{ empleado.nombre }}"
                                         required
-                                        pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+"
-                                        title="Solo letras y espacios (no números o caracteres especiales)">
+                                        minlength="2"
+                                        maxlength="25"
+                                        pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,25}"
+                                        title="Debe tener entre 2 y 25 letras y espacios.">
                             </div>
 
                             <div class="form-group">
@@ -389,8 +395,10 @@
                                         name="apellido"
                                         value="{{ empleado.apellido }}"
                                         required
-                                        pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+"
-                                        title="Solo letras y espacios (no números o caracteres especiales)">
+                                        minlength="2"
+                                        maxlength="25"
+                                        pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,25}"
+                                        title="Debe tener entre 2 y 25 letras y espacios.">
                             </div>
                             
                             <button type="submit" class="btn btn-primary">Guardar cambios</button>

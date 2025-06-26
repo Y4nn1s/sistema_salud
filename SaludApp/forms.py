@@ -37,12 +37,12 @@ class EmpleadoForm(forms.ModelForm):
         fields = ['cedula', 'p00', 'nombre', 'apellido']
         widgets = {
             'cedula': forms.TextInput(attrs={
-                'pattern': '\d{8}',
-                'title': 'Debe ingresar exactamente 8 dígitos numéricos'
+                'pattern': r'\d{7,9}',
+                'title': 'Debe ingresar entre 7 y 9 dígitos numéricos'
             }),
             'p00': forms.TextInput(attrs={
-                'pattern': '\d{6}',
-                'title': 'Debe ingresar exactamente 6 dígitos numéricos'
+                'pattern': '\d{8}',
+                'title': 'Debe ingresar exactamente 8 dígitos numéricos'
             }),
             'nombre': forms.TextInput(attrs={
                 'pattern': '[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+',
@@ -57,9 +57,9 @@ class EmpleadoForm(forms.ModelForm):
     def clean_cedula(self):
         cedula = self.cleaned_data['cedula']
 
-        # Validar formato (8 dígitos)
-        if not re.fullmatch(r'\d{8}', cedula):
-            raise forms.ValidationError("La cédula debe tener exactamente 8 dígitos numéricos.")
+        # Validar formato (7 a 9 dígitos)
+        if not re.fullmatch(r'^\d{7,9}$', cedula):
+            raise forms.ValidationError("La cédula debe tener entre 7 y 9 dígitos.")
 
         # Validar unicidad (excluyendo el registro actual)
         if Empleado.objects.filter(cedula=cedula).exclude(pk=self.instance.pk).exists():
@@ -69,9 +69,9 @@ class EmpleadoForm(forms.ModelForm):
     def clean_p00(self):
         p00 = self.cleaned_data['p00']
 
-        # Validar formato (6 dígitos)
-        if not re.fullmatch(r'\d{6}', p00):
-            raise forms.ValidationError("El P00 debe tener exactamente 6 dígitos numéricos.")
+        # Validar formato (8 dígitos)
+        if not re.fullmatch(r'\d{8}', p00):
+            raise forms.ValidationError("El P00 debe tener exactamente 8 dígitos numéricos.")
 
         # Validar unicidad (excluyendo el registro actual)
         if Empleado.objects.filter(p00=p00).exclude(pk=self.instance.pk).exists():

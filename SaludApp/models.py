@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
+from django.core.validators import MinLengthValidator, MaxLengthValidator
 #============================================================================
 
 
@@ -90,10 +91,27 @@ class CustomUser(AbstractUser):
 
 #============================================================================
 class Empleado(models.Model):
-    cedula = models.CharField(max_length=20, unique=True, verbose_name='Cédula de Identidad')
-    p00 = models.CharField(max_length=20, unique=True, verbose_name='Número P00')
-    nombre = models.CharField(max_length=100, verbose_name='Nombres')
-    apellido = models.CharField(max_length=100, verbose_name='Apellidos')
+    cedula = models.CharField(
+        max_length=9, 
+        validators=[
+            MinLengthValidator(7, message="La cédula debe tener al menos 7 dígitos."),
+            MaxLengthValidator(9, message="La cédula no puede tener más de 9 dígitos.")
+        ],
+        unique=True, 
+        verbose_name='Cédula de Identidad')
+    p00 = models.CharField(max_length=8, unique=True, verbose_name='Número P00')
+    nombre = models.CharField(
+        max_length=25,
+        validators=[
+            MinLengthValidator(2, message="El nombre debe tener al menos 2 caracteres."),
+        ],
+        verbose_name='Nombres')
+    apellido = models.CharField(
+        max_length=25,
+        validators=[
+            MinLengthValidator(2, message="El apellido debe tener al menos 2 caracteres."),
+        ],
+        verbose_name='Apellidos')
     fecha_registro = models.DateTimeField(default=timezone.now, verbose_name='Fecha de registro')
 
     def __str__(self):
