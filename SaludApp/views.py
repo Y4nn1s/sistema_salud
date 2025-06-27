@@ -197,7 +197,7 @@ class ListaVisitasView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = super().get_queryset()  # Aplica el ordenamiento definido (si lo tienes)
+        queryset = super().get_queryset() 
 
         # Filtra según rol
         if user.is_medico:
@@ -415,7 +415,7 @@ class ListaUsuariosView(LoginRequiredMixin, ListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return CustomUser.objects.order_by('-date_joined')
+        return CustomUser.objects.order_by('date_joined')
 
 #==================================================================================
 #============================ REDIRECCION POR ROLES ===============================
