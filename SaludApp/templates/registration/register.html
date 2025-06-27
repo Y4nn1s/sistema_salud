@@ -64,15 +64,114 @@
             border-left: none;
         }
     </style>
+
+    <!-- Estilos Mensajes Flash -->
+    <style>
+        /* Mensaje de éxito */
+        .custom-success {
+            border-left: 5px solid #28a745;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .custom-success .alert-heading {
+            color: #155724;
+            font-weight: 600;
+        }
+        .custom-success .fa-check-circle {
+            color: #28a745;
+        }
+        /* Estilos para listas de mensajes */
+        .message-list {
+            line-height: 1.6;
+        }
+        .message-list br {
+            display: block;
+            content: "";
+            margin: 8px 0;
+        }
+
+        /* Estilos para mensajes de error personalizados */
+        .custom-alert {
+            border-left: 5px solid #dc3545;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .custom-alert .alert-heading {
+            color: #721c24;
+            font-weight: 600;
+        }
+        .error-list {
+            line-height: 1.6;
+        }
+        .error-list br {
+            display: block;
+            content: "";
+            margin: 8px 0;
+        }
+        .custom-alert .fa-exclamation-circle {
+            color: #dc3545;
+        }
+    </style>
 </head>
 
 <body>
-
     <div class="d-flex align-items-center">
         <div class="container py-5">
             <div class="row justify-content-center">
                 <div class="col-md-6 col-lg-5">
                     <div class="card p-4 p-md-5">
+                    <!-- Mostrar Mensajes flash -->
+                    {% if messages %}
+                        <div class="container mt-3">
+                            {% for message in messages %}
+                                {% if 'safe' in message.extra_tags %}
+                                    <!-- Mensaje de error personalizado -->
+                                    <div class="alert alert-danger alert-dismissible fade show custom-alert d-flex align-items-center" role="alert">
+                                        <i class="fas fa-exclamation-circle me-3" style="font-size: 1.5rem;"></i>
+                                        <div class="flex-grow-1">
+                                            <h5 class="alert-heading mb-1">Error de Validación</h5>
+                                            <div class="error-list">
+                                                {{ message|safe }}
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn-close ms-3" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% elif message.tags == 'success' %}
+                                    <!-- Mensaje de éxito -->
+                                    <div class="alert alert-success alert-dismissible fade show custom-success d-flex align-items-center" role="alert">
+                                        <i class="fas fa-check-circle me-3" style="font-size: 1.5rem;"></i>
+                                        <div class="flex-grow-1">
+                                            <h5 class="alert-heading mb-1">Éxito</h5>
+                                            <div class="message-list">
+                                                {{ message }}
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn-close ms-3" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% else %}
+                                    <!-- Otros tipos de mensajes (info, warning) -->
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show d-flex align-items-center" role="alert">
+                                        <div class="d-flex align-items-center">
+                                            {% if message.tags == 'warning' %}
+                                                <i class="fas fa-exclamation-triangle me-3 text-warning" style="font-size: 1.5rem;"></i>
+                                            {% elif message.tags == 'info' %}
+                                                <i class="fas fa-info-circle me-3 text-info" style="font-size: 1.5rem;"></i>
+                                            {% endif %}
+                                            <div class="flex-grow-1">
+                                                <h5 class="alert-heading mb-1">{{ message.tags|title }}</h5>
+                                                <div class="message-list">
+                                                    {{ message }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn-close ms-3" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
                         <div class="text-center mb-4">
                             <h2 class="mt-3 mb-2">Crear una cuenta</h2>
                             <p class="text-muted">Complete el formulario para registrarse</p>

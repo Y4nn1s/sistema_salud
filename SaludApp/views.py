@@ -30,6 +30,13 @@ class CustomLoginView(LoginView):
         elif user.is_recepcion:
             return reverse('lista_visitas')
         return super().get_success_url()
+    
+    def get(self, request, *args, **kwargs):
+
+        if request.user.is_authenticated:
+            return redirect(reverse('redireccion_por_rol'))
+        
+        return super().get(request, *args, **kwargs)
 
 class CustomLogoutView(LogoutView):
     template_name = 'registration/logout.html'
