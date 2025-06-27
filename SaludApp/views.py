@@ -43,9 +43,28 @@ class RegisterView(CreateView):
     def form_valid(self, form):
         # Por defecto todos los nuevos usuarios son Recepción
         user = form.save(commit=False)
-        user.rol = 'recepcion' #Rol por defecto
+        user.rol = 'recepcion'
         user.save()
+
+        # Mensaje de éxito
+        messages.success(
+            self.request,
+            'Usuario registrado exitosamente. Ahora puedes iniciar sesión.'
+        )
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # Agrupar todos los errores del formulario
+        error_list = []
+        for field, errors in form.errors.items():
+            for error in errors:
+                error_list.append(error)
+
+        if error_list:
+            error_message = "Por favor corrige los siguientes errores:<br>" + "<br>".join(error_list)
+            messages.error(self.request, error_message, extra_tags='safe')
+
+        return super().form_invalid(form)
 
 class AccesoDenegadoView(TemplateView):
     template_name = 'access_denied.html'
