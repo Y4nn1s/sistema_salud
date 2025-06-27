@@ -101,7 +101,7 @@ class VisitaForm(forms.ModelForm):
 class DiagnosticoForm(forms.ModelForm):
     class Meta:
         model = Diagnostico
-        fields = ['diagnostico', 'tratamiento']
+        fields = ['diagnostico', 'tratamiento', 'observacion']
         widgets = {
             'diagnostico': forms.Textarea(attrs={
                 'class': 'form-control',
@@ -113,12 +113,26 @@ class DiagnosticoForm(forms.ModelForm):
                 'class': 'form-control',
                 'rows': 3,
                 'placeholder': 'Descripción detallada del tratamiento a emplear'
-            })
+            }),
+
+            'observacion': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Registre aquí cualquier observación relevante'
+            }),
         }
 
-    def clean_diagnostico(self):
-        diagnostico = self.cleaned_data.get('diagnostico')
-        if diagnostico and len(diagnostico.strip()) < 10:
-            raise ValidationError("El escrito debe contener al menos 10 caracteres.")
-        return diagnostico
+    def clean(self):
+        cleaned_data = super().clean()
+        min_length = 7
+
+        # Validación común para campos de texto
+        for field in ['diagnostico', 'tratamiento', 'observacion']:
+            value = cleaned_data.get(field)
+            if value and len(value.strip()) < min_length:
+                raise ValidationError({
+                    field: f"El campo debe tener al menos {min_length} caracteres."
+                })
+
+        return cleaned_data
 #============================================================================

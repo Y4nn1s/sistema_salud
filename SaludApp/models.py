@@ -148,13 +148,8 @@ class Visita(models.Model):
 class Diagnostico(models.Model):
     """Modelo para los diagnósticos médicos"""
 
-    MOTIVO_CHOICES = [
-        ('consulta', 'Consulta'),
-        ('emergencia', 'Emergencia'),
-        ('seguimiento', 'Seguimiento')
-    ]
     visita = models.OneToOneField(Visita, on_delete=models.CASCADE, related_name='diagnostico', verbose_name='Visita')
-    motivo = models.CharField(max_length=50, choices=MOTIVO_CHOICES, null=True, blank=True, verbose_name='Motivo de la consulta')
+    motivo = models.CharField(max_length=50, null=True, blank=True, verbose_name='Motivo de la consulta')
     diagnostico = models.TextField(verbose_name='Diagnóstico médico', blank=True, null=True)
     tratamiento = models.TextField(verbose_name='Tratamiento indicado', blank=True, null=True)
     observacion = models.TextField(verbose_name='Observaciónes adicionales', blank=True, null=True)
@@ -181,6 +176,10 @@ class Diagnostico(models.Model):
         # Validación 2: Si hay diagnóstico, debe haber tratamiento
         if self.diagnostico and not self.tratamiento:
             raise ValidationError("Si registra un diagnóstico, debe incluir el tratamiento correspondiente.")
+        
+        # Validación 3: Si hay tratamiento, debe haber diagnóstico
+        if self.tratamiento and not self.diagnostico:
+            raise ValidationError("Si registra un tratamiento, debe incluir un diagnóstico asociado.")
     
     class Meta:
         verbose_name = 'Cita Médica'

@@ -225,7 +225,7 @@ class CrearVisitaView(LoginRequiredMixin, CreateView):
         error_list = []
         for field, errors in form.errors.items():
             for error in errors:
-                error_list.append(error)  # Opcional: puedes dejar el campo también
+                error_list.append(error) 
 
         # Crear un solo mensaje con todos los errores
         if error_list:
@@ -326,6 +326,19 @@ class CrearDiagnosticoView(LoginRequiredMixin, CreateView):
 
         messages.success(self.request, 'Diagnóstico guardado exitosamente.')
         return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        # Agrupa todos los errores del formulario
+        error_list = []
+        for field, errors in form.errors.items():
+            for error in errors:
+                error_list.append(error)
+
+        if error_list:
+            error_message = "Por favor corrija el(los) siguiente(s) error(es):<br>" + "<br>".join(error_list)
+            messages.error(self.request, error_message, extra_tags='safe')
+
+        return redirect('lista_citasmedicas')
 
 class EditarDiagnosticoView(LoginRequiredMixin, UpdateView):
     model = Diagnostico
@@ -334,14 +347,27 @@ class EditarDiagnosticoView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('lista_citasmedicas')
 
     def form_valid(self, form):
-
         if not self.request.user.is_medico:
-            messages.error(self.request, "Solo los médicos pueden crear diagnósticos.")
+            # Añadir mensaje de error con formato consistente
+            error_message = "Por favor corrija el(los) siguiente(s) error(es):<br>" + "<br> Solo los médicos pueden crear diagnósticos."
+            messages.error(self.request, error_message, extra_tags='safe')
             return redirect('lista_citasmedicas')
 
         form.instance.medico = self.request.user
-        messages.success(self.request, 'Diagnóstico guardado exitosamente.')
+        messages.success(self.request, 'Diagnóstico actualizado correctamente.')
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        error_list = []
+        for field, errors in form.errors.items():
+            for error in errors:
+                error_list.append(error)
+
+        if error_list:
+            error_message = "Por favor corrija el(los) siguiente(s) error(es):<br>" + "<br>".join(error_list)
+            messages.error(self.request, error_message, extra_tags='safe')
+
+        return redirect('lista_citasmedicas')
 
 class EliminarDiagnosticoView(LoginRequiredMixin, DeleteView):
     model = Diagnostico
